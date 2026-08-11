@@ -22,6 +22,7 @@
 | 3a | Memory globe redesign (2.5D knowledge sphere) | [x] done (replaced by 3b) |
 | 3b | Memory ledger (Act 03 event-log replay) | [x] done |
 | 3c | Claims-honesty audit + Act 07 use cases | [x] done |
+| 3d | Back to top button (fixed bottom-right, site-wide) | [x] done |
 | 4 | Polish, a11y, performance | pending |
 | 5 | FastAPI + ApiMemoryEngine + live Playground (deferred) | pending |
 
@@ -49,6 +50,7 @@
 - `npm run build` + `npm run lint` — passing (Phase 1 + ledger). Routes: `/` + `/playground` (static).
 - Memory ledger smoke test (served HTML): 200 OK; event-log strip, CONFLICT DETECTED, coffee↔tea, AUDIT · 97 tests rows all present in server HTML (DOM content, not canvas).
 - Claims-honesty smoke test: "Open source core" absent; "Where it fits", "Not a chat-log store", "Illustrative" (SDK note), "Postgres + pgvector core", "18 memories", "D3 replay suite", real GitHub link present.
+- Back to top smoke test: 200 OK, `aria-label="Back to top"` present (mounted in layout, site-wide).
 - Spec §58 acceptance checklist — pending (Phase 4).
 
 ## Next Actions

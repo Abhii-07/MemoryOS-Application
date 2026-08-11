@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { MotionProvider } from "@/lib/motion/motion-context";
+import { BackToTop } from "@/components/BackToTop";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -37,7 +38,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       className={`${spaceGrotesk.variable} ${inter.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-text">
-        <MotionProvider>{children}</MotionProvider>
+        <MotionProvider>
+          {children}
+          <BackToTop />
+        </MotionProvider>
       </body>
     </html>
   );
