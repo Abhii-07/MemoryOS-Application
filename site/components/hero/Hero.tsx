@@ -21,10 +21,11 @@ export function Hero() {
         aria-hidden="true"
       />
 
-      <div className="container-site relative flex min-h-[92vh] flex-col items-center justify-center py-28 text-center">
-        {/* MemoryCore — signature visualization (spec §10) */}
-        <MemoryCore />
+      {/* MemoryCore — signature visualization, full-viewport layer
+          (spec §10); hero content stays in its max-width container */}
+      <MemoryCore />
 
+      <div className="container-site relative flex min-h-[92vh] flex-col items-center justify-center py-28 text-center">
         <p className="relative font-mono text-[11px] uppercase tracking-[0.3em] text-secondary">
           Memory infrastructure for AI
         </p>

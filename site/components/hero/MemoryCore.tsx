@@ -276,7 +276,7 @@ export function MemoryCore() {
   const showCanvas = !reduced && !canvasFailed;
 
   return (
-    <div ref={containerRef} className="absolute inset-0" aria-hidden="true">
+    <div ref={containerRef} className="pointer-events-none absolute inset-0" aria-hidden="true">
       {showCanvas ? (
         <canvas ref={canvasRef} className="pointer-events-none" />
       ) : (

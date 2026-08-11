@@ -129,7 +129,7 @@ export function HeroNarrative() {
     };
   }, [reduced]);
 
-  const visibleRows = reduced ? STEPS.length : step;
+  const stepShown = reduced ? STEPS.length : step;
 
   return (
     <div ref={containerRef} className="relative mt-14 flex justify-center" aria-hidden="true">
@@ -149,14 +149,23 @@ export function HeroNarrative() {
           </span>
         </div>
 
-        {/* rows */}
+        {/* rows — all rendered from first paint; height is fully reserved.
+            Reveal is opacity/transform only, so the panel never grows and
+            nothing below it moves (spec §25). */}
         <div className="flex flex-col gap-2 px-4 py-4 text-left font-mono text-[12px] leading-relaxed">
-          {STEPS.slice(0, visibleRows).map((s, si) =>
-            s.rows.map((r, ri) => (
+          {STEPS.map((s, si) => {
+            const revealed = si < stepShown;
+            return s.rows.map((r, ri) => (
               <div
                 key={`${si}-${ri}`}
-                className="narrative-row"
-                style={{ animation: reduced ? undefined : "row-in 0.35s ease both" }}
+                className="will-change-[opacity,transform]"
+                style={{
+                  opacity: revealed ? 1 : 0,
+                  transform: revealed ? "none" : "translateY(4px)",
+                  transition: reduced
+                    ? undefined
+                    : "opacity 0.35s ease, transform 0.35s ease",
+                }}
               >
                 {r.label && (
                   <span
@@ -194,11 +203,8 @@ export function HeroNarrative() {
                   {r.text}
                 </span>
               </div>
-            )),
-          )}
-
-          {/* stable height while rows are animating in */}
-          {!reduced && visibleRows === 0 && <div className="h-[156px]" />}
+            ));
+          })}
         </div>
       </div>
     </div>
