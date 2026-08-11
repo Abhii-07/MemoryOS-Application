@@ -193,20 +193,6 @@ body {
   animation: pulse-dot 2.2s ease-in-out infinite;
 }
 
-@keyframes conflict-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.25;
-  }
-}
-
-.conflict-pulse {
-  animation: conflict-pulse 2s ease-in-out infinite;
-}
-
 /* ── Decision stream reveal (spec §16) ─────────────────────── */
 @keyframes stream-in {
   from {
