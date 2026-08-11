@@ -3,8 +3,8 @@
 > Canonical, machine-readable/human-readable state of this project. **The repository is the source of truth, not chat context.** If any file contradicts this one, SESSION_STATE.md wins (and the contradiction must be fixed).
 
 ## Last Updated
-- Date/time: 2026-08-11 (Phase 3 complete + memory globe redesign)
-- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = memory-globe commit
+- Date/time: 2026-08-12 (ledger blank-gap fix)
+- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = ledger blank-gap fix commit
 - Phase: **Phase 3 complete — Phase 4 next** (see `STATUS.md`)
 
 ## Project
@@ -23,6 +23,7 @@
 | 3b | Memory ledger (Act 03 event-log replay) | [x] done |
 | 3c | Claims-honesty audit + Act 07 use cases | [x] done |
 | 3d | Back to top button (fixed bottom-right, site-wide) | [x] done |
+| 3e | Ledger blank-gap fix (always-visible continuous scroll loop) | [x] done |
 | 4 | Polish, a11y, performance | pending |
 | 5 | FastAPI + ApiMemoryEngine + live Playground (deferred) | pending |
 
@@ -35,7 +36,7 @@
 - S-006 Playground page (live engine, A/B theater, assistant-mode providers) comes AFTER the landing site.
 - S-007 Nav is homepage-only: anchors + stubs (Developers/Docs/GitHub placeholders) + Playground link.
 - S-011 Claims honesty: the site must never claim what the project isn't — no "open source" (repo is all-rights-reserved), no CI claims (none configured), no SDK/API-docs claims (on the roadmap; developer code block is labeled "illustrative"). Metrics come only from `acceptance.json`; footer "GitHub" points to the real public repo.
-- S-010 Memory Ledger: Act 03 is a DOM-based "event log" replay (no canvas) — a deterministic ~20s ledger of the engine processing memories (INGEST → CONFLICT → SUPERSEDE → ACTIVATE → AUDIT), coffee→tea as the hero sequence, auto-scroll with hover/touch pause, blinking cursor on the active row, click a row → floating inspector, reduced-motion static. Replaced the 2.5D globe (recoverable from commit `edb2890`); ledger is real DOM text → keyboard/AT accessible, no "view as list" needed (§49).
+- S-010 Memory Ledger: Act 03 is a DOM-based "event log" replay (no canvas) — a deterministic ~20s ledger of the engine processing memories (INGEST → CONFLICT → SUPERSEDE → ACTIVATE → AUDIT), coffee→tea as the hero sequence, auto-scroll with hover/touch pause, blinking cursor on the active row, click a row → floating inspector, reduced-motion static. Replaced the 2.5D globe (recoverable from commit `edb2890`); ledger is real DOM text → keyboard/AT accessible, no "view as list" needed (§49). **Rev (3e): all rows are always visible** — no staged reveal, no rewind fade; the view continuously scrolls down over the run phase and back to top (content still visible) then loops. Stage can never go blank.
 
 ## Constraints (operational)
 1. Spec (`MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md`) is the design/performance contract — sections 1–70.
@@ -47,10 +48,11 @@
 7. The public MemoryOS repo (`D:\Abhii\Projects\MemoryOS`) is untouched by this project.
 
 ## Test / Verification Status
-- `npm run build` + `npm run lint` — passing (Phase 1 + ledger). Routes: `/` + `/playground` (static).
+- `npm run build` + `npm run lint` — passing (Phase 1 + ledger + blank-gap fix). Routes: `/` + `/playground` (static).
 - Memory ledger smoke test (served HTML): 200 OK; event-log strip, CONFLICT DETECTED, coffee↔tea, AUDIT · 97 tests rows all present in server HTML (DOM content, not canvas).
 - Claims-honesty smoke test: "Open source core" absent; "Where it fits", "Not a chat-log store", "Illustrative" (SDK note), "Postgres + pgvector core", "18 memories", "D3 replay suite", real GitHub link present.
 - Back to top smoke test: 200 OK, `aria-label="Back to top"` present (mounted in layout, site-wide).
+- Ledger blank-gap fix: all rows present in server HTML (no `opacity`/`translateY(10px)` reveal styles, no `step`/`stepShown` machinery) — the stage renders content from first paint and never blanks; continuous scroll with scroll-back loop.
 - Spec §58 acceptance checklist — pending (Phase 4).
 
 ## Next Actions

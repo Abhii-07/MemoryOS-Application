@@ -160,22 +160,24 @@ function RowContent({ e, active }: { e: LedgerEvent; active: boolean }) {
 export function MemoryGraph() {
   const { reduced } = useMotionPref();
   const viewportRef = useRef<HTMLDivElement>(null);
-  const [step, setStep] = useState(reduced ? EVENTS.length : 0);
+  const [activeIdx, setActiveIdx] = useState(-1);
   const [selected, setSelected] = useState<NodeData | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const stepRef = useRef(reduced ? EVENTS.length : 0);
+  const activeIdxRef = useRef(-1);
   const tRef = useRef(0);
   const activeRef = useRef(true);
   const hoverRef = useRef(false);
   const manualRef = useRef(false);
 
-  // reveal + auto-scroll loop (no React state per frame — scrollTop is a
-  // direct DOM write, step state only changes on row boundaries)
+  // continuous auto-scroll loop — rows are ALWAYS visible, so the stage is
+  // never blank: the view scrolls down over the run phase, then back up to
+  // the top (all content still visible) and loops. scrollTop is a direct
+  // DOM write; the cursor index only changes on event boundaries.
   useEffect(() => {
     if (reduced) return;
 
-    stepRef.current = -1; // force a reset on the first tick
     tRef.current = 0;
+    activeIdxRef.current = -1;
     let raf = 0;
     let last = performance.now();
 
@@ -188,34 +190,27 @@ export function MemoryGraph() {
         return;
       }
 
-      if (stepRef.current === -1) {
-        stepRef.current = 0;
-        setStep(0);
-      }
-
       tRef.current += dt;
       const t = tRef.current;
 
       if (t >= CYCLE) {
-        tRef.current = 0;
-        stepRef.current = 0;
-        setStep(0);
-      } else if (t < REWIND_AT) {
-        let s = 0;
-        for (let i = 0; i < EVENTS.length; i++) if (t >= EVENTS[i].t) s = i + 1;
-        if (s !== stepRef.current) {
-          stepRef.current = s;
-          setStep(s);
-        }
-      } else if (stepRef.current !== 0) {
-        stepRef.current = 0;
-        setStep(0); // rewind: rows fade out, scroll lerps back up
+        tRef.current = 0; // loop: scroll-back already returned to the top
+      }
+
+      // cursor tracks the active event during the run phase only
+      let idx = -1;
+      if (t < REWIND_AT) {
+        for (let i = 0; i < EVENTS.length; i++) if (t >= EVENTS[i].t) idx = i;
+      }
+      if (idx !== activeIdxRef.current) {
+        activeIdxRef.current = idx;
+        setActiveIdx(idx);
       }
 
       const vp = viewportRef.current;
       if (vp && !hoverRef.current && !manualRef.current) {
-        const target =
-          (stepRef.current / EVENTS.length) * Math.max(0, vp.scrollHeight - vp.clientHeight);
+        const max = Math.max(0, vp.scrollHeight - vp.clientHeight);
+        const target = t < REWIND_AT ? (t / REWIND_AT) * max : 0;
         const cur = vp.scrollTop;
         if (Math.abs(target - cur) > 0.5) vp.scrollTop = cur + (target - cur) * 0.12;
       }
@@ -264,8 +259,6 @@ export function MemoryGraph() {
     ? NODES.find((n) => n.type === selected.type && n.key === selected.key && n.id !== selected.id)
     : null;
 
-  const stepShown = reduced ? EVENTS.length : step;
-
   return (
     <section id="how-it-works" className="section-gap" aria-label="Memory ledger">
       <div className="container-site">
@@ -309,21 +302,12 @@ export function MemoryGraph() {
         >
           <ol className="mx-auto max-w-[960px] divide-y divide-[rgba(255,255,255,0.05)] px-6">
             {EVENTS.map((e, i) => {
-              const revealed = i < stepShown;
-              const activeRow = !reduced && i === stepShown - 1;
+              const activeRow = !reduced && i === activeIdx;
               const rowClass = `flex items-baseline gap-3 px-2 py-3 font-mono text-[12px] ${
                 e.hero ? "bg-white/[0.015]" : ""
               }`;
               return (
-                <li
-                  key={e.t}
-                  className="will-change-[opacity,transform]"
-                  style={{
-                    opacity: revealed ? 1 : 0,
-                    transform: revealed ? "none" : "translateY(10px)",
-                    transition: reduced ? undefined : "opacity 0.38s ease, transform 0.38s ease",
-                  }}
-                >
+                <li key={e.t} className="[content-visibility:auto]">
                   {e.memId ? (
                     <button
                       onClick={() => setSelected(NODES.find((n) => n.id === e.memId) ?? null)}
