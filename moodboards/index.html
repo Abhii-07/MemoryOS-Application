@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MemoryOS · Moodboards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#08080a;color:#fafafa;font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#8b5cf6;margin-bottom:14px}
+  h1{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.03em;text-align:center}
+  p.sub{color:#9b9ba3;margin-top:12px;font-size:15px;text-align:center;max-width:520px;line-height:1.6}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:44px;width:100%;max-width:960px}
+  .card{text-decoration:none;color:inherit;border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:28px 26px;background:#0f0f12;transition:.25s;position:relative;overflow:hidden}
+  .card:hover{transform:translateY(-4px);border-color:rgba(139,92,246,.5);box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 30px rgba(139,92,246,.12)}
+  .card .no{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;color:#6e6e76}
+  .card h2{font-size:19px;font-weight:700;margin-top:10px}
+  .card p{font-size:13.5px;color:#9b9ba3;line-height:1.6;margin-top:10px}
+  .card .hint{display:inline-block;margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a78bfa;letter-spacing:.1em}
+  .dot-row{display:flex;gap:6px;margin-top:14px}
+  .dot-row i{width:12px;height:12px;border-radius:50%}
+  .c1 .dot-row i:nth-child(1){background:#00e5ff;box-shadow:0 0 10px #00e5ff}
+  .c1 .dot-row i:nth-child(2){background:#2dd4bf}
+  .c1 .dot-row i:nth-child(3){background:#f472b6}
+  .c2 .dot-row i:nth-child(1){background:#8b5cf6}
+  .c2 .dot-row i:nth-child(2){background:#a78bfa}
+  .c2 .dot-row i:nth-child(3){background:#fafafa}
+  .c3 .dot-row i:nth-child(1){background:#818cf8;box-shadow:0 0 10px #818cf8}
+  .c3 .dot-row i:nth-child(2){background:#c084fc}
+  .c3 .dot-row i:nth-child(3){background:#67e8f9}
+  footer{margin-top:48px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#6e6e76;letter-spacing:.14em}
+</style>
+</head>
+<body>
+  <div class="tag">MemoryOS · Design Exploration</div>
+  <h1>Choose your vibe</h1>
+  <p class="sub">Three directions for "The AI You Can Audit". Open each one in your browser and feel it — then tell me which one wins (or which parts to mix).</p>
+
+  <div class="cards">
+    <a class="card c1" href="01-hologram-hud.html">
+      <div class="no">01 · HOLOGRAM HUD</div>
+      <h2>JARVIS energy</h2>
+      <p>Abyss black, cyan glow, scanlines and corner brackets. The brain as a living hologram — constellation nodes, shockwave ripples, a terminal that never lies.</p>
+      <div class="dot-row"><i></i><i></i><i></i></div>
+      <span class="hint">OPEN →</span>
+    </a>
+    <a class="card c2" href="02-elegant-modern-dark.html">
+      <div class="no">02 · ELEGANT MODERN</div>
+      <h2>Linear × Stripe school</h2>
+      <p>Charcoal and violet, surgical typography, quiet micro-animations. The premium developer-tool look — confident, restrained, extremely current.</p>
+      <div class="dot-row"><i></i><i></i><i></i></div>
+      <span class="hint">OPEN →</span>
+    </a>
+    <a class="card c3" href="03-aurora-nebula.html">
+      <div class="no">03 · AURORA NEBULA</div>
+      <h2>Ambient intelligence</h2>
+      <p>Deep indigo gradients, drifting aurora light, frosted glass. Softer and warmer — a memory system that feels like a calm presence, not a machine.</p>
+      <div class="dot-row"><i></i><i></i><i></i></div>
+      <span class="hint">OPEN →</span>
+    </a>
+  </div>
+
+  <footer>MOODBOARDS · MEMORYOS · 2026</footer>
+</body>
+</html>
