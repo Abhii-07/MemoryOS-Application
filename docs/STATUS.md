@@ -10,21 +10,21 @@ Last updated: 2026-08-11
 - [x] `docs/` full mirror (SESSION_STATE, STATUS, PROJECT_MEMORY, DECISIONS, RESUME, SETUP_AND_RUN)
 - [x] Spec + moodboards preserved at repo root
 
-## Phase 1 — Foundation (in progress)
-- [ ] Scaffold `site/` (Next.js + TypeScript + Tailwind, App Router)
-- [ ] Dependencies: `motion`, `lucide-react` only
-- [ ] Design tokens (§53) → Tailwind theme (`--background`, `--surface`, `--primary`, …)
-- [ ] Fonts: Space Grotesk / Inter / IBM Plex Mono (limited weights, `font-display: swap`)
-- [ ] `lib/engine/MemoryEngine.ts` interface (`ingest`, `ask`, `getMemories`, `audit`)
-- [ ] `lib/engine/DemoMemoryEngine.ts` (deterministic dataset)
-- [ ] `lib/engine/config.ts` (DEMO ↔ REAL switch)
-- [ ] `lib/demo-data/scenarios.ts` (supersession · contradiction · cold-start · PII · lineage delete)
-- [ ] `components/navigation/Navbar.tsx` (glass pill on scroll; anchors + stubs + Playground)
-- [ ] Hero section (copy + 2 CTAs, no animation yet)
-- [ ] Footer
-- [ ] `/playground` stub page
-- [ ] Build passes (`npm run build`)
-- [ ] Docs updated + committed
+## Phase 1 — Foundation (done)
+- [x] Scaffold `site/` (Next.js + TypeScript + Tailwind, App Router)
+- [x] Dependencies: `motion`, `lucide-react` only
+- [x] Design tokens (§53) → Tailwind theme (`--background`, `--surface`, `--primary`, …)
+- [x] Fonts: Space Grotesk / Inter / IBM Plex Mono (limited weights, `font-display: swap`)
+- [x] `lib/engine/MemoryEngine.ts` interface (`ingest`, `ask`, `getMemories`, `audit`)
+- [x] `lib/engine/DemoMemoryEngine.ts` (deterministic dataset)
+- [x] `lib/engine/config.ts` (DEMO ↔ REAL switch) + `ApiMemoryEngine` stub (Phase 5)
+- [x] `lib/demo-data/scenarios.ts` (supersession · contradiction · cold-start · PII · lineage delete)
+- [x] `components/navigation/Navbar.tsx` (glass pill on scroll; anchors + stubs + Playground)
+- [x] Hero section (copy + 2 CTAs, real metrics strip, no animation yet)
+- [x] Footer
+- [x] `/playground` stub page
+- [x] Build + lint pass (`npm run build`, `npm run lint`)
+- [x] Docs updated + committed
 
 ## Phase 2 — Signature Visual
 - [ ] `MemoryCore` hero canvas (20–30 nodes, DPR ≤ 2, cursor interpolation)

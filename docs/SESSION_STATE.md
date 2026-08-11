@@ -3,9 +3,9 @@
 > Canonical, machine-readable/human-readable state of this project. **The repository is the source of truth, not chat context.** If any file contradicts this one, SESSION_STATE.md wins (and the contradiction must be fixed).
 
 ## Last Updated
-- Date/time: 2026-08-11 (project kickoff)
-- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**
-- Phase: **Step 0 complete — Phase 1 in progress** (see `STATUS.md`)
+- Date/time: 2026-08-11 (Phase 1 complete)
+- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = Phase 1 commit
+- Phase: **Phase 1 complete — Phase 2 next** (see `STATUS.md`)
 
 ## Project
 - Project name: **MemoryOS Showcase** (sibling of the MemoryOS engine repo, `D:\Abhii\Projects\MemoryOS`)
@@ -16,7 +16,7 @@
 | Phase | Goal | Status |
 |---|---|---|
 | 0 | Repo setup + docs | [x] done |
-| 1 | Foundation (scaffold, tokens, engine interface, nav, hero, footer) | in progress |
+| 1 | Foundation (scaffold, tokens, engine interface, nav, hero, footer) | [x] done |
 | 2 | Signature visual (MemoryCore canvas + coffee→tea narrative) | pending |
 | 3 | Product story (7 acts) | pending |
 | 4 | Polish, a11y, performance | pending |
@@ -41,13 +41,11 @@
 7. The public MemoryOS repo (`D:\Abhii\Projects\MemoryOS`) is untouched by this project.
 
 ## Test / Verification Status
-- `npm run build` + `npm run dev` — in progress (Phase 1).
+- `npm run build` + `npm run lint` — passing (Phase 1). Routes: `/` + `/playground` (static).
 - Spec §58 acceptance checklist — pending (Phase 4).
 
 ## Next Actions
-1. Scaffold `site/` (create-next-app: TS, Tailwind, App Router).
-2. Install only `motion` + `lucide-react`.
-3. Design tokens (§53) → Tailwind theme; fonts wired.
-4. `lib/engine/MemoryEngine.ts` + `DemoMemoryEngine.ts` + `lib/demo-data/scenarios.ts`.
-5. Navbar, hero, footer, `/playground` stub.
-6. Update SESSION_STATE/STATUS + commit.
+1. Phase 2: `MemoryCore` hero canvas (20–30 nodes, DPR ≤ 2, cursor interpolation, visibility pauses).
+2. 4–6 s coffee→tea narrative sequence (input → extract → conflict → supersede → updated; holds final state, no loop).
+3. Reduced-motion fallback (static graph).
+4. Update SESSION_STATE/STATUS + commit (local only).
