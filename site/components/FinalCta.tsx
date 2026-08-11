@@ -36,11 +36,11 @@ export function FinalCta() {
             </div>
 
             <p className="relative mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 font-mono text-[11.5px] uppercase tracking-[0.16em] text-faint">
-              <span>Open source core</span>
+              <span>Postgres + pgvector core</span>
               <span aria-hidden="true">·</span>
-              <span>API docs</span>
+              <span>97 tests · all green</span>
               <span aria-hidden="true">·</span>
-              <span>GitHub</span>
+              <span>No LLM on the write path</span>
             </p>
           </div>
         </Reveal>

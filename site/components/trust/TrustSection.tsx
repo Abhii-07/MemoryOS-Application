@@ -111,8 +111,8 @@ export function TrustSection() {
                   Measured, not marketed
                 </p>
                 <p className="mt-3 max-w-[380px] text-[13.5px] leading-relaxed text-muted">
-                  Numbers below come from the engine&rsquo;s own acceptance benchmark —
-                  the same suite it runs in CI.
+                  Numbers below come from the engine&rsquo;s own acceptance benchmark — the
+                  D3 replay suite that ships with the repository.
                 </p>
               </div>
               <dl className="grid grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4">

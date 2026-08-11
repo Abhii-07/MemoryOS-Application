@@ -21,6 +21,7 @@
 | 3 | Product story (7 acts) | [x] done |
 | 3a | Memory globe redesign (2.5D knowledge sphere) | [x] done (replaced by 3b) |
 | 3b | Memory ledger (Act 03 event-log replay) | [x] done |
+| 3c | Claims-honesty audit + Act 07 use cases | [x] done |
 | 4 | Polish, a11y, performance | pending |
 | 5 | FastAPI + ApiMemoryEngine + live Playground (deferred) | pending |
 
@@ -32,6 +33,7 @@
 - S-005 Local-only git, no remote; **nothing pushed anywhere without explicit user approval**.
 - S-006 Playground page (live engine, A/B theater, assistant-mode providers) comes AFTER the landing site.
 - S-007 Nav is homepage-only: anchors + stubs (Developers/Docs/GitHub placeholders) + Playground link.
+- S-011 Claims honesty: the site must never claim what the project isn't — no "open source" (repo is all-rights-reserved), no CI claims (none configured), no SDK/API-docs claims (on the roadmap; developer code block is labeled "illustrative"). Metrics come only from `acceptance.json`; footer "GitHub" points to the real public repo.
 - S-010 Memory Ledger: Act 03 is a DOM-based "event log" replay (no canvas) — a deterministic ~20s ledger of the engine processing memories (INGEST → CONFLICT → SUPERSEDE → ACTIVATE → AUDIT), coffee→tea as the hero sequence, auto-scroll with hover/touch pause, blinking cursor on the active row, click a row → floating inspector, reduced-motion static. Replaced the 2.5D globe (recoverable from commit `edb2890`); ledger is real DOM text → keyboard/AT accessible, no "view as list" needed (§49).
 
 ## Constraints (operational)
@@ -46,6 +48,7 @@
 ## Test / Verification Status
 - `npm run build` + `npm run lint` — passing (Phase 1 + ledger). Routes: `/` + `/playground` (static).
 - Memory ledger smoke test (served HTML): 200 OK; event-log strip, CONFLICT DETECTED, coffee↔tea, AUDIT · 97 tests rows all present in server HTML (DOM content, not canvas).
+- Claims-honesty smoke test: "Open source core" absent; "Where it fits", "Not a chat-log store", "Illustrative" (SDK note), "Postgres + pgvector core", "18 memories", "D3 replay suite", real GitHub link present.
 - Spec §58 acceptance checklist — pending (Phase 4).
 
 ## Next Actions

@@ -5,6 +5,7 @@ import { MemoryGraph } from "@/components/graph/MemoryGraph";
 import { DecisionStream } from "@/components/stream/DecisionStream";
 import { DeveloperSection } from "@/components/developer/DeveloperSection";
 import { TrustSection } from "@/components/trust/TrustSection";
+import { UseCases } from "@/components/use/UseCases";
 import { FinalCta } from "@/components/FinalCta";
 import { Footer } from "@/components/footer/Footer";
 
@@ -21,6 +22,7 @@ export default function Home() {
         <DecisionStream />
         <DeveloperSection />
         <TrustSection />
+        <UseCases />
         <FinalCta />
       </main>
       <Footer />

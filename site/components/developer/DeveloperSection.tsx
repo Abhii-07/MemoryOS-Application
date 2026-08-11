@@ -35,13 +35,13 @@ export function DeveloperSection() {
         <Reveal>
           <p className="kicker-label">Act 05 — Developer experience</p>
           <h2 className="h2-display">
-            One API call.
+            One layer.
             <br />
             Persistent memory.
           </h2>
           <p className="lead-text">
-            MemoryOS is a layer, not a rewrite. One call extracts, resolves, stores, retrieves
-            and explains — your app keeps its existing stack.
+            MemoryOS is a layer, not a rewrite — extract, resolve, store, retrieve and explain,
+            while your app keeps its existing stack.
           </p>
         </Reveal>
 
@@ -81,6 +81,11 @@ export function DeveloperSection() {
                   <code>{CODE}</code>
                 </pre>
               </div>
+
+              <p className="font-mono text-[10.5px] leading-relaxed text-faint">
+                Illustrative — the public SDK ships with the API surface, which is on the
+                roadmap. Today the engine runs as a Python package on Postgres + pgvector.
+              </p>
 
               <div className="overflow-hidden rounded-xl border border-[rgba(255,255,255,0.1)] bg-surface">
                 <div className="border-b border-[rgba(255,255,255,0.08)] px-5 py-3">

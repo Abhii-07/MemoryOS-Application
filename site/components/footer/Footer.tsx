@@ -4,7 +4,7 @@ import { MotionToggle } from "@/components/MotionToggle";
 
 const COLS = [
   { title: "Product", links: ["How it works", "Playground", "GitHub"] },
-  { title: "Resources", links: ["Docs", "Developers"] },
+  { title: "Resources", links: ["Developers"] },
 ];
 
 export function Footer() {
@@ -32,7 +32,17 @@ export function Footer() {
               {col.links.map((l) => (
                 <li key={l}>
                   <Link
-                    href={l === "How it works" ? "#how-it-works" : l === "Playground" ? "/playground" : "#"}
+                    href={
+                      l === "How it works"
+                        ? "#how-it-works"
+                        : l === "Playground"
+                          ? "/playground"
+                          : l === "GitHub"
+                            ? "https://github.com/Abhii-07/MemoryOS"
+                            : "#developers"
+                    }
+                    target={l === "GitHub" ? "_blank" : undefined}
+                    rel={l === "GitHub" ? "noopener noreferrer" : undefined}
                     className="text-[13.5px] text-muted transition-colors hover:text-text"
                   >
                     {l}

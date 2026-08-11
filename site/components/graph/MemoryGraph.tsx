@@ -95,7 +95,7 @@ interface LedgerEvent {
 // Deterministic replay — mirrors the engine's processing order.
 const EVENTS: LedgerEvent[] = [
   { t: 0, op: "INGEST", kind: "preference.drink", value: "coffee", detail: "user_stated · 88%", memId: "mem_117", hero: true },
-  { t: 850, op: "INDEX", kind: "slot", value: "mem_117", detail: "hash 0x9f1c2d · deterministic" },
+  { t: 850, op: "INDEX", kind: "slot", value: "mem_117", detail: "deterministic slot assignment" },
   { t: 1700, op: "INGEST", kind: "fact.location", value: "Bangalore", detail: "user_stated · 97%", memId: "mem_124" },
   { t: 2550, op: "INGEST", kind: "preference.color", value: "green", detail: "user_stated · 91%", memId: "mem_11d" },
   { t: 3400, op: "INGEST", kind: "preference.drink", value: "tea", detail: "user_stated · 94%", memId: "mem_116", hero: true },
@@ -112,7 +112,7 @@ const EVENTS: LedgerEvent[] = [
   { t: 12750, op: "CONFLICT", kind: "preference.music", value: "indie ↔ jazz", detail: "same key · different values" },
   { t: 13600, op: "SUPERSEDE", kind: "mem_15d", value: "jazz", detail: "resolved by mem_15c", memId: "mem_15d" },
   { t: 14450, op: "INGEST", kind: "habit.meditation", value: "nightly", detail: "user_stated · 84% · NEW", memId: "mem_155" },
-  { t: 15300, op: "COMPLETE", kind: "index", value: "24 memories", detail: "32 relations · 6 states" },
+  { t: 15300, op: "COMPLETE", kind: "index", value: "18 memories", detail: "6 states · deterministic" },
   { t: 16150, op: "AUDIT", kind: "integrity", value: "PASS", detail: "97 tests · 0% contradictions · 0% leak" },
 ];
 
