@@ -3,9 +3,9 @@
 > Canonical, machine-readable/human-readable state of this project. **The repository is the source of truth, not chat context.** If any file contradicts this one, SESSION_STATE.md wins (and the contradiction must be fixed).
 
 ## Last Updated
-- Date/time: 2026-08-11 (Phase 2 complete)
-- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = Phase 2 commit
-- Phase: **Phase 2 complete — Phase 3 next** (see `STATUS.md`)
+- Date/time: 2026-08-11 (Phase 3 complete)
+- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = Phase 3 commit
+- Phase: **Phase 3 complete — Phase 4 next** (see `STATUS.md`)
 
 ## Project
 - Project name: **MemoryOS Showcase** (sibling of the MemoryOS engine repo, `D:\Abhii\Projects\MemoryOS`)
@@ -18,7 +18,8 @@
 | 0 | Repo setup + docs | [x] done |
 | 1 | Foundation (scaffold, tokens, engine interface, nav, hero, footer) | [x] done |
 | 2 | Signature visual (MemoryCore canvas + coffee→tea narrative) | [x] done |
-| 3 | Product story (7 acts) | pending |
+| 3 | Product story (7 acts) | [x] done |
+| 4 | Polish, a11y, performance | pending |
 | 4 | Polish, a11y, performance | pending |
 | 5 | FastAPI + ApiMemoryEngine + live Playground (deferred) | pending |
 
@@ -45,7 +46,6 @@
 - Spec §58 acceptance checklist — pending (Phase 4).
 
 ## Next Actions
-1. Phase 3: Act 02 Problem (`MemoryConversation`), Act 03 `MemoryGraph` (15–30 nodes, 6 states, hover dim, click → inspector, "view as list").
-2. Act 04 `DecisionStream` + "Why did this memory win?" explainer.
-3. Act 05 Developer (`CodeExample` + `Pipeline`), Act 06 Trust (4 cards), real-metrics strip, final CTA.
-4. Update SESSION_STATE/STATUS + commit (local only).
+1. Phase 4: reduced-motion + manual Motion pass already in place; verify focus/aria on interactive components (inspector, trust accordions, stream expander).
+2. Lighthouse + CPU-throttled profiling (mid-range profile); fix anything above budget.
+3. Spec §58 acceptance checklist complete; final docs update + commit.

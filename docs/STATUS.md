@@ -34,15 +34,15 @@ Last updated: 2026-08-11
 - [x] Manual Motion On/Off control (footer toggle, persisted; `lib/motion/motion-context.tsx`)
 - [x] Docs updated + committed
 
-## Phase 3 — Product Story
-- [ ] Act 02 Problem: `MemoryConversation` ("AI can generate. It still doesn't remember." + 3-weeks-later)
-- [ ] Act 03 `MemoryGraph` (15–30 nodes, 6 states, hover dim, click → inspector, "view as list")
-- [ ] Act 04 `DecisionStream` + "Why did this memory win?" explainer
-- [ ] Act 05 Developer: `CodeExample` + `Pipeline` (single traveling particle)
-- [ ] Act 06 Trust: 4 cards (Provenance · Supersession · Forgetting · Privacy)
-- [ ] Real-metrics strip (11 ms · 0% · 97 — from engine acceptance.json)
-- [ ] Final CTA + footer polish
-- [ ] Docs updated + committed
+## Phase 3 — Product Story (done)
+- [x] Act 02 Problem: `MemoryConversation` ("AI can generate. It still doesn't remember." — without-memory vs with-MemoryOS, 3-weeks-later, "That is memory.")
+- [x] Act 03 `MemoryGraph` (20 nodes / 30 edges, 6 states, hover → tooltip + dim, click → inspector, "view as list", state legend)
+- [x] Act 04 `DecisionStream` + "Why did this memory win?" resolution explainer
+- [x] Act 05 Developer: `CodeExample` + `Pipeline` (single traveling particle, reduced-motion aware)
+- [x] Act 06 Trust: 4 interactive cards (Provenance · Supersession · Forgetting · Privacy)
+- [x] Real-metrics band (11 ms · 0% · 97) + capability labels — from engine acceptance benchmark
+- [x] Final CTA (slow ambient glow only) + anchor map (#product #how-it-works #developers)
+- [x] Docs updated + committed
 
 ## Phase 4 — Polish, Performance, A11y
 - [ ] Section reveals, hover micro-states (±1–2 px, no magnetic/scale)

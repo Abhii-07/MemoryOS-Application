@@ -203,3 +203,73 @@ body {
 .pulse-dot {
   animation: pulse-dot 2.2s ease-in-out infinite;
 }
+
+@keyframes conflict-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.conflict-pulse {
+  animation: conflict-pulse 2s ease-in-out infinite;
+}
+
+/* ── Decision stream reveal (spec §16) ─────────────────────── */
+@keyframes stream-in {
+  from {
+    opacity: 0;
+    transform: translateX(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stream-row {
+  animation: stream-in 0.4s ease both;
+}
+
+/* ── Pipeline traveling particle (spec §19) ────────────────── */
+@keyframes pipeline-drop {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% - 6px);
+    opacity: 0;
+  }
+}
+
+.pipeline-dot {
+  animation: pipeline-drop 1.4s ease-in-out infinite;
+}
+
+/* ── Final CTA slow ambient glow (spec §22) ────────────────── */
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.slow-glow {
+  background:
+    radial-gradient(ellipse 30% 42% at 50% 18%, rgba(143, 231, 255, 0.05), transparent 70%),
+    radial-gradient(ellipse 34% 48% at 50% 82%, rgba(124, 92, 255, 0.08), transparent 70%);
+  animation: glow-breathe 7s ease-in-out infinite;
+}
