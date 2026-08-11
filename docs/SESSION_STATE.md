@@ -19,7 +19,8 @@
 | 1 | Foundation (scaffold, tokens, engine interface, nav, hero, footer) | [x] done |
 | 2 | Signature visual (MemoryCore canvas + coffee→tea narrative) | [x] done |
 | 3 | Product story (7 acts) | [x] done |
-| 3a | Memory globe redesign (2.5D knowledge sphere) | [x] done |
+| 3a | Memory globe redesign (2.5D knowledge sphere) | [x] done (replaced by 3b) |
+| 3b | Memory ledger (Act 03 event-log replay) | [x] done |
 | 4 | Polish, a11y, performance | pending |
 | 5 | FastAPI + ApiMemoryEngine + live Playground (deferred) | pending |
 
@@ -31,7 +32,7 @@
 - S-005 Local-only git, no remote; **nothing pushed anywhere without explicit user approval**.
 - S-006 Playground page (live engine, A/B theater, assistant-mode providers) comes AFTER the landing site.
 - S-007 Nav is homepage-only: anchors + stubs (Developers/Docs/GitHub placeholders) + Playground link.
-- S-010 Memory Globe: Act 03 is a compact 2.5D "knowledge sphere" (Canvas 2D, Y-axis rotation ~0.4°/s, deterministic seeded placement) — MEMORY ENGINE core → 5 semantic category hubs → clustered memories, no hub-spokes; the coffee→tea supersession replays as a looping demo timeline; no per-node drag (globe moves as one); desktop 24 nodes / mobile 16.
+- S-010 Memory Ledger: Act 03 is a DOM-based "event log" replay (no canvas) — a deterministic ~20s ledger of the engine processing memories (INGEST → CONFLICT → SUPERSEDE → ACTIVATE → AUDIT), coffee→tea as the hero sequence, auto-scroll with hover/touch pause, blinking cursor on the active row, click a row → floating inspector, reduced-motion static. Replaced the 2.5D globe (recoverable from commit `edb2890`); ledger is real DOM text → keyboard/AT accessible, no "view as list" needed (§49).
 
 ## Constraints (operational)
 1. Spec (`MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md`) is the design/performance contract — sections 1–70.
@@ -43,8 +44,8 @@
 7. The public MemoryOS repo (`D:\Abhii\Projects\MemoryOS`) is untouched by this project.
 
 ## Test / Verification Status
-- `npm run build` + `npm run lint` — passing (Phase 1 + globe redesign). Routes: `/` + `/playground` (static).
-- Memory globe smoke test (served HTML): 200 OK, aria-label "memory globe", "View as list" present.
+- `npm run build` + `npm run lint` — passing (Phase 1 + ledger). Routes: `/` + `/playground` (static).
+- Memory ledger smoke test (served HTML): 200 OK; event-log strip, CONFLICT DETECTED, coffee↔tea, AUDIT · 97 tests rows all present in server HTML (DOM content, not canvas).
 - Spec §58 acceptance checklist — pending (Phase 4).
 
 ## Next Actions
