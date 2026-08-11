@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/LogoMark";
+import { MotionToggle } from "@/components/MotionToggle";
 
 const COLS = [
   { title: "Product", links: ["How it works", "Playground", "GitHub"] },
@@ -46,6 +47,7 @@ export function Footer() {
       <div className="border-t border-[rgba(255,255,255,0.06)]">
         <div className="container-site flex flex-wrap items-center justify-between gap-3 py-6 font-mono text-[11.5px] tracking-[0.12em] text-faint">
           <span>© 2026 MemoryOS</span>
+          <MotionToggle />
           <span>THE AI YOU CAN AUDIT</span>
         </div>
       </div>

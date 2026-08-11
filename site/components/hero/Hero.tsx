@@ -1,6 +1,8 @@
 "use client";
 
 import { ArrowRight, PlayCircle } from "lucide-react";
+import { MemoryCore } from "@/components/hero/MemoryCore";
+import { HeroNarrative } from "@/components/hero/HeroNarrative";
 
 /**
  * Hero — Act 01 (spec §9). Copy + CTAs only in Phase 1.
@@ -20,8 +22,8 @@ export function Hero() {
       />
 
       <div className="container-site relative flex min-h-[92vh] flex-col items-center justify-center py-28 text-center">
-        {/* MemoryCore mounts here (Phase 2) */}
-        <div id="memory-core" className="pointer-events-none absolute inset-0" aria-hidden="true" />
+        {/* MemoryCore — signature visualization (spec §10) */}
+        <MemoryCore />
 
         <p className="relative font-mono text-[11px] uppercase tracking-[0.3em] text-secondary">
           Memory infrastructure for AI
@@ -47,6 +49,9 @@ export function Hero() {
             <PlayCircle size={15} /> See how memory works
           </a>
         </div>
+
+        {/* Signature moment: coffee → tea (spec §11, §62) */}
+        <HeroNarrative />
 
         {/* real metrics only (S-004) */}
         <dl className="relative mt-16 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">

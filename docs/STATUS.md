@@ -26,12 +26,13 @@ Last updated: 2026-08-11
 - [x] Build + lint pass (`npm run build`, `npm run lint`)
 - [x] Docs updated + committed
 
-## Phase 2 — Signature Visual
-- [ ] `MemoryCore` hero canvas (20–30 nodes, DPR ≤ 2, cursor interpolation)
-- [ ] Visibility pausing (IntersectionObserver + tab visibility)
-- [ ] 4–6 s coffee→tea narrative sequence (input → extract → conflict → supersede → updated; holds final state, no loop)
-- [ ] Reduced-motion fallback (static graph)
-- [ ] Docs updated + committed
+## Phase 2 — Signature Visual (done)
+- [x] `MemoryCore` hero canvas (24 desktop / 12 mobile nodes, DPR ≤ 2 / ≤ 1.5, cursor lerp ~0.05 + gentle push, soft radial highlight, precomputed edge pairs)
+- [x] Visibility pausing (IntersectionObserver + tab visibility) for canvas and narrative
+- [x] 4–6 s coffee→tea narrative sequence (input → extract → conflict → supersede → updated → query → answer; holds final state, restarts after long pause only)
+- [x] Reduced-motion fallback: static SVG graph + static narrative final state
+- [x] Manual Motion On/Off control (footer toggle, persisted; `lib/motion/motion-context.tsx`)
+- [x] Docs updated + committed
 
 ## Phase 3 — Product Story
 - [ ] Act 02 Problem: `MemoryConversation` ("AI can generate. It still doesn't remember." + 3-weeks-later)
