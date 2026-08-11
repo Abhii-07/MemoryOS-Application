@@ -3,8 +3,8 @@
 > Canonical, machine-readable/human-readable state of this project. **The repository is the source of truth, not chat context.** If any file contradicts this one, SESSION_STATE.md wins (and the contradiction must be fixed).
 
 ## Last Updated
-- Date/time: 2026-08-11 (Phase 3 complete)
-- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = Phase 3 commit
+- Date/time: 2026-08-11 (Phase 3 complete + memory globe redesign)
+- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = memory-globe commit
 - Phase: **Phase 3 complete — Phase 4 next** (see `STATUS.md`)
 
 ## Project
@@ -19,7 +19,7 @@
 | 1 | Foundation (scaffold, tokens, engine interface, nav, hero, footer) | [x] done |
 | 2 | Signature visual (MemoryCore canvas + coffee→tea narrative) | [x] done |
 | 3 | Product story (7 acts) | [x] done |
-| 4 | Polish, a11y, performance | pending |
+| 3a | Memory globe redesign (2.5D knowledge sphere) | [x] done |
 | 4 | Polish, a11y, performance | pending |
 | 5 | FastAPI + ApiMemoryEngine + live Playground (deferred) | pending |
 
@@ -31,6 +31,7 @@
 - S-005 Local-only git, no remote; **nothing pushed anywhere without explicit user approval**.
 - S-006 Playground page (live engine, A/B theater, assistant-mode providers) comes AFTER the landing site.
 - S-007 Nav is homepage-only: anchors + stubs (Developers/Docs/GitHub placeholders) + Playground link.
+- S-010 Memory Globe: Act 03 is a compact 2.5D "knowledge sphere" (Canvas 2D, Y-axis rotation ~0.4°/s, deterministic seeded placement) — MEMORY ENGINE core → 5 semantic category hubs → clustered memories, no hub-spokes; the coffee→tea supersession replays as a looping demo timeline; no per-node drag (globe moves as one); desktop 24 nodes / mobile 16.
 
 ## Constraints (operational)
 1. Spec (`MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md`) is the design/performance contract — sections 1–70.
@@ -42,7 +43,8 @@
 7. The public MemoryOS repo (`D:\Abhii\Projects\MemoryOS`) is untouched by this project.
 
 ## Test / Verification Status
-- `npm run build` + `npm run lint` — passing (Phase 1). Routes: `/` + `/playground` (static).
+- `npm run build` + `npm run lint` — passing (Phase 1 + globe redesign). Routes: `/` + `/playground` (static).
+- Memory globe smoke test (served HTML): 200 OK, aria-label "memory globe", "View as list" present.
 - Spec §58 acceptance checklist — pending (Phase 4).
 
 ## Next Actions
