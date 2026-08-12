@@ -46,3 +46,8 @@
 **Date:** 2026-08-11
 **Ruling:** Space Grotesk (display) · Inter (body) · IBM Plex Mono (machine) — limited weights (400–700 / 400–600 / 400–500), `font-display: swap`. Accent colors represent memory state, not decoration (indigo=active system, ice blue=retrieval, green=success, pink=superseded/conflict).
 **Rationale:** Spec §5, §4.2. Typography splits human interface vs machine memory visually.
+
+## S-012 � Phase 4 a11y pass & measured performance
+**Date:** 2026-08-12
+**Ruling:** (1) Every interactive element gets a visible :focus-visible ring; mobile menu closes on Esc and returns focus to the toggle; the memory inspector returns focus to the clicked ledger row on close; ledger rows use their visible text as the accessible name (no ria-label override); ledger scroll area is a plain container (the ol supplies list semantics); --text-faint raised to #7a7b87 (AA = 4.5:1 on background/surface); DELETE/DELETED colors match the new faint token. (2) No content-visibility on ledger rows (collapses offscreen rows to 1px, causing overlap; pointless on 20 small rows). (3) Measured: Lighthouse mobile (simulated 4G + CPU) perf 96 / a11y 100 / best-practices 100 / SEO 100, CLS 0, TBT 13 ms; desktop (real network) 100 / 100 / 100 / 100, LCP 94 ms; load = 0 long tasks; realistic scroll = 0 frames > 24 ms.
+**Rationale:** Spec �49 (keyboard, focus, contrast, semantics) and �58 (no jank, no layout shift, keyboard works). The simulated-network LCP (~2.8 s) is a Lighthouse simulation artifact � real network LCP is 94 ms, so no font/bundle restructuring is warranted.

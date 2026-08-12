@@ -19,12 +19,10 @@ Premium Next.js marketing site (deterministic demo engine) + future live Playgro
 - Update `docs/SESSION_STATE.md` + `docs/STATUS.md` at the end of every session.
 - The public MemoryOS repo (`D:\Abhii\Projects\MemoryOS`) is untouched.
 
-## Current state (2026-08-11)
-- Step 0 complete: git init, `.gitignore`, full `docs/` mirror, spec + moodboards preserved.
-- Phase 1 (Foundation) in progress — scaffold `site/`, tokens, fonts, engine interface + demo engine, nav, hero, footer.
+## Current state (2026-08-12)
+- Phases 0–4 complete: scaffold, tokens, engine interface + demo engine, nav, hero (MemoryCore canvas + coffee→tea narrative), 7-act product story (memory ledger, decision stream, developer, trust, use cases, final CTA), back-to-top, claims-honesty pass.
+- Phase 4 (a11y + performance) verified: Lighthouse mobile 96/100/100/100 · desktop 100/100/100/100, CLS 0, no long tasks, no scroll jank; §58 checklist all green.
+- Next: Phase 5 (FastAPI + `ApiMemoryEngine` + live Playground).
 
 ## Where the project is heading
-- Phase 2 — `MemoryCore` hero canvas + coffee→tea signature sequence.
-- Phase 3 — the 7 acts (problem, graph, decision stream, developer, trust, final CTA).
-- Phase 4 — polish/performance/a11y + spec §58 checklist.
 - Phase 5 — FastAPI service, `ApiMemoryEngine`, live Playground + A/B theater + assistant-mode providers.

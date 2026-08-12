@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X, ExternalLink, ArrowRight } from "lucide-react";
 import { LogoMark } from "@/components/LogoMark";
@@ -15,6 +15,7 @@ const LINKS = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -22,6 +23,24 @@ export function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Esc closes the mobile menu and returns focus to the toggle
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const closeMenu = () => {
+    setOpen(false);
+    toggleRef.current?.focus();
+  };
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4">
@@ -76,9 +95,11 @@ export function Navbar() {
 
         {/* mobile toggle */}
         <button
+          ref={toggleRef}
           className="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-white/5 md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
+          aria-controls="mobile-menu"
           aria-label="Toggle menu"
         >
           {open ? <X size={18} /> : <Menu size={18} />}
@@ -87,25 +108,40 @@ export function Navbar() {
 
       {/* mobile menu */}
       {open && (
-        <div className="mx-auto mt-2 flex max-w-5xl flex-col gap-1 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(13,13,17,0.92)] p-3 backdrop-blur-md md:hidden">
-          {LINKS.map((l) => (
-            <Link
-              key={l.label}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2 text-[14px] text-muted hover:bg-white/5 hover:text-text"
-            >
-              {l.label}
-            </Link>
-          ))}
+        <nav
+          id="mobile-menu"
+          aria-label="Mobile"
+          className="mx-auto mt-2 flex max-w-5xl flex-col gap-1 rounded-xl border border-[rgba(255,255,255,0.12)] bg-[rgba(13,13,17,0.92)] p-3 backdrop-blur-md md:hidden"
+        >
+          {LINKS.map((l) =>
+            l.stub ? (
+              <span
+                key={l.label}
+                className="cursor-not-allowed rounded-lg px-3 py-2 text-[14px] text-faint"
+                aria-disabled="true"
+                title="Coming soon"
+              >
+                {l.label}
+              </span>
+            ) : (
+              <Link
+                key={l.label}
+                href={l.href}
+                onClick={closeMenu}
+                className="rounded-lg px-3 py-2 text-[14px] text-muted hover:bg-white/5 hover:text-text"
+              >
+                {l.label}
+              </Link>
+            ),
+          )}
           <Link
             href="/playground"
-            onClick={() => setOpen(false)}
+            onClick={closeMenu}
             className="mt-1 rounded-lg bg-text px-3 py-2 text-center text-[14px] font-semibold text-background"
           >
             Playground
           </Link>
-        </div>
+        </nav>
       )}
     </header>
   );

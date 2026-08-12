@@ -84,7 +84,7 @@ export function DecisionStream() {
               </button>
 
               {open && (
-                <div id="resolution-panel" className="grid gap-3 border-t border-[rgba(255,255,255,0.08)] bg-white/[0.02] px-5 py-4 sm:grid-cols-2">
+                <dl id="resolution-panel" className="grid gap-3 border-t border-[rgba(255,255,255,0.08)] bg-white/[0.02] px-5 py-4 sm:grid-cols-2">
                   {[
                     ["NEW MEMORY", "tea"],
                     ["EXISTING MEMORY", "coffee"],
@@ -98,7 +98,7 @@ export function DecisionStream() {
                       <dd className="mt-1 font-mono text-[12px] text-text">{v}</dd>
                     </div>
                   ))}
-                </div>
+                </dl>
               )}
             </div>
           </div>

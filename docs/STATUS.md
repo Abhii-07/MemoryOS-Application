@@ -2,7 +2,7 @@
 
 > Phase-by-phase build checklist for the MemoryOS Showcase. Updated at the end of every working session/phase. `[ ]` = pending · `[x]` = done · `[~]` = in progress.
 
-Last updated: 2026-08-11
+Last updated: 2026-08-12
 
 ## Phase 0 — Repo Setup (done)
 - [x] `git init` local-only (`main`, no remote)
@@ -44,13 +44,13 @@ Last updated: 2026-08-11
 - [x] Final CTA (slow ambient glow only) + anchor map (#product #how-it-works #developers)
 - [x] Docs updated + committed
 
-## Phase 4 — Polish, Performance, A11y
-- [ ] Section reveals, hover micro-states (±1–2 px, no magnetic/scale)
-- [ ] Reduced-motion support + manual Motion On/Off control
-- [ ] Keyboard/focus/screen-reader pass
-- [ ] Lighthouse + CPU-throttled profiling (mid-range profile)
-- [ ] Spec §58 acceptance checklist complete
-- [ ] Docs updated + committed
+## Phase 4 — Polish, Performance, A11y (done)
+- [x] Section reveals (Reveal — opacity/transform only, one-shot, §52), hover micro-states ±1–2 px only (color/border/opacity/1px translate; no scale, no magnetic — §51)
+- [x] Reduced-motion support (static fallbacks: hero SVG, narrative final state, ledger static, Reveal static, CSS override) + manual Motion On/Off control (footer toggle, persisted)
+- [x] Keyboard/focus/screen-reader pass: global `:focus-visible` ring; mobile menu Esc-close + focus return + `aria-controls`; ledger inspector focus return to source row; ledger row accessible names from visible text; `ol` list semantics (no redundant `role="list"`); DecisionStream resolution panel wrapped in `<dl>`; `--text-faint` → `#7a7b87` (AA); DELETE/DELETED state colors match; hero canvas + narrative `aria-hidden` (decorative, equivalent content elsewhere); heading order h1→h2→h3; tab-order probe clean
+- [x] Lighthouse + CPU-throttled profiling: mobile (simulated 4G + CPU) perf 96 · a11y 100 · best-practices 100 · SEO 100, CLS 0, TBT 13 ms; desktop (real network) 100 · 100 · 100 · 100, LCP 94 ms; load long-tasks 0; realistic scripted scroll 0 frames > 24 ms; initial JS 230 KB gzip total (motion + lucide only)
+- [x] Spec §58 acceptance checklist — all items verified (see SESSION_STATE)
+- [x] Docs updated + committed
 
 ## Phase 5 — Live Engine (deferred)
 - [ ] FastAPI service (`POST /ingest` · `POST /ask` · `GET /memory` · `GET /audit`) reusing `memory_os`

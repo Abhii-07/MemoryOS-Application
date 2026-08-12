@@ -62,7 +62,7 @@ const STATE_COLOR: Record<GState, string> = {
   ACTIVE: "#5EE6A8",
   NEW: "#8FE7FF",
   SUPERSEDED: "#FF7AA8",
-  DELETED: "#6F707C",
+  DELETED: "#7A7B87",
   REDACTED: "#A5A5B0",
   CONFLICT: "#FF7AA8",
 };
@@ -77,7 +77,7 @@ const OP_COLOR: Record<Op, string> = {
   SUPERSEDE: "#FF7AA8",
   ACTIVATE: "#5EE6A8",
   REDACT: "#A5A5B0",
-  DELETE: "#6F707C",
+  DELETE: "#7A7B87",
   AUDIT: "#7C5CFF",
   COMPLETE: "#8FE7FF",
 };
@@ -163,6 +163,7 @@ export function MemoryGraph() {
   const [activeIdx, setActiveIdx] = useState(-1);
   const [selected, setSelected] = useState<NodeData | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLButtonElement | null>(null);
   const activeIdxRef = useRef(-1);
   const tRef = useRef(0);
   const activeRef = useRef(true);
@@ -245,13 +246,19 @@ export function MemoryGraph() {
     };
   }, [reduced]);
 
-  // Esc closes inspector; focus the close button when it opens
+  // Esc closes inspector; focus the close button when it opens, and return
+  // focus to the row that opened it when it closes
   useEffect(() => {
     if (!selected) return;
     closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSelected(null);
+    const close = () => setSelected(null);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      returnFocusRef.current?.focus();
+      returnFocusRef.current = null;
+    };
   }, [selected]);
 
   // supersession counterpart for the inspector
@@ -287,7 +294,6 @@ export function MemoryGraph() {
         <div
           ref={viewportRef}
           className="absolute inset-x-0 bottom-0 top-[42px] overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_bottom,transparent,black_24px,black_calc(100%_-_24px),transparent)] [-webkit-mask-image:linear-gradient(to_bottom,transparent,black_24px,black_calc(100%_-_24px),transparent)]"
-          role="list"
           aria-label="MemoryOS event log — deterministic replay of memory processing. Hover to pause the live scroll."
           onPointerEnter={() => {
             hoverRef.current = true;
@@ -307,12 +313,14 @@ export function MemoryGraph() {
                 e.hero ? "bg-white/[0.015]" : ""
               }`;
               return (
-                <li key={e.t} className="[content-visibility:auto]">
+                <li key={e.t}>
                   {e.memId ? (
                     <button
-                      onClick={() => setSelected(NODES.find((n) => n.id === e.memId) ?? null)}
+                      onClick={(ev) => {
+                        returnFocusRef.current = ev.currentTarget;
+                        setSelected(NODES.find((n) => n.id === e.memId) ?? null);
+                      }}
                       className={`${rowClass} w-full text-left transition-colors hover:bg-white/[0.03]`}
-                      aria-label={`Inspect memory ${e.kind} ${e.value}`}
                     >
                       <RowContent e={e} active={activeRow} />
                     </button>
