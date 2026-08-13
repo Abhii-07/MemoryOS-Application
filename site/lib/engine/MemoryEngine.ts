@@ -95,6 +95,15 @@ export interface AuditEvent {
   detail: string;
 }
 
+export interface AssistResponse {
+  query: string;
+  answer: string;
+  provider: string | null;
+  model: string | null;
+  memories: Memory[];
+  latencyMs: number;
+}
+
 export interface MemoryEngine {
   ingest(input: string): Promise<MemoryEvent[]>;
   ask(query: string): Promise<MemoryResponse>;

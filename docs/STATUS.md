@@ -52,11 +52,16 @@ Last updated: 2026-08-13
 - [x] Spec §58 acceptance checklist — all items verified (see SESSION_STATE)
 - [x] Docs updated + committed
 
-## Phase 5 — Live Engine (done, except assistant-mode providers)
+## Phase 5 - Live Engine (done)
 - [x] PostgreSQL blocker resolved — portable PG 17.10 + pgvector 0.8.6 running console-attached on `:5433` (root cause + fix: `docs/PHASE5-POSTGRES-ISSUE.md`)
 - [x] Engine verified against real DB: smoke (ADD/UPDATE supersession, hybrid retrieval) + full 97-test suite green
 - [x] FastAPI service (`POST /ingest` · `POST /ask` · `GET /memory` · `GET /audit` · `GET /healthz`) reusing `memory_os` — `server/app.py` + `server/mapping.py` + `server/run.ps1` (readiness-polled lifecycle, no guess-timing)
 - [x] `ApiMemoryEngine` (same `MemoryEngine` contract) — `site/lib/engine/ApiMemoryEngine.ts`
 - [x] `/playground` live: real input → real engine (3 panels: Message · Ask · Memories+audit)
 - [x] A/B theater (naive no-memory baseline vs MemoryOS) in the Ask panel
-- [ ] Assistant-mode providers (Ollama · OpenAI · Anthropic · OpenRouter) — deferred, keys via `.env` only
+- [x] Assistant-mode providers (Ollama | OpenAI | Anthropic | OpenRouter) - keys via local .env only, never client; registry auto-picks first configured (env MEMORYOS_ASSIST_PROVIDER to force); Ollama is_configured verifies model present in /api/tags (not just endpoint up)
+- [x] Provider layer: server/providers/ - base.py (Provider ABC + with_fallback probe), ollama.py (device, key-less), openrouter.py (prod default, free model), openai.py, anthropic.py, registry.py
+- [x] POST /assist (retrieval + evidence JSON -> provider.generate; never-invent system prompt; 502 on provider error; answer/memories/provider/model/latency_ms) + GET /assist/providers (gated list + active)
+- [x] ApiMemoryEngine.assist() + listProviders(); Assist panel (4th tab) in LivePlayground - provider select, evidence list, latency, no-memory honesty
+- [x] .env.example committed (real .env gitignored - zero secrets on machine)
+- [x] Verified live: ollama pull llama3.2:latest (2.0 GB); grounded query cites memory evidence; zero-hit query answers honestly

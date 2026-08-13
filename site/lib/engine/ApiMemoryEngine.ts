@@ -4,6 +4,7 @@ import type {
   MemoryEventKind,
   MemoryResponse,
   AuditEvent,
+  AssistResponse,
   MemoryEngine,
 } from "./MemoryEngine";
 
@@ -117,6 +118,38 @@ export class ApiMemoryEngine implements MemoryEngine {
       `/audit?memory_id=${encodeURIComponent(memoryId)}`,
     );
     return res.events;
+  }
+
+  async assist(query: string, provider?: string): Promise<AssistResponse> {
+    const res = await request<{
+      query: string;
+      answer: string;
+      provider: string | null;
+      model: string | null;
+      memories: ServerMemory[];
+      latency_ms: number;
+    }>("/assist", {
+      method: "POST",
+      body: JSON.stringify(provider ? { query, provider } : { query }),
+    });
+    return {
+      query: res.query,
+      answer: res.answer,
+      provider: res.provider,
+      model: res.model,
+      memories: res.memories.map((m) => this.toMemory(m)),
+      latencyMs: res.latency_ms,
+    };
+  }
+
+  async listProviders(): Promise<
+    { name: string; model: string; configured: boolean }[]
+  > {
+    const res = await request<{
+      providers: { name: string; model: string; configured: boolean }[];
+      active: string | null;
+    }>("/assist/providers");
+    return res.providers;
   }
 
   private toMemory(m: ServerMemory): Memory {

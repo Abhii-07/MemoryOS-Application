@@ -21,6 +21,7 @@ Run:
 
 from __future__ import annotations
 
+import json
 import os
 import threading
 import time
@@ -41,6 +42,7 @@ from mapping import (
     memory_to_contract,
     slot_type,
 )
+from providers import available_providers, get_provider, register_all
 
 DEFAULT_DSN = os.environ.get(
     "MEMORYOS_DB_DSN", "postgresql://memoryos@localhost:5433/memoryos"
@@ -156,6 +158,31 @@ class AskResponse(BaseModel):
     latency_ms: int
 
 
+class AssistRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=2000)
+    provider: str | None = None
+
+
+class AssistResponse(BaseModel):
+    query: str
+    answer: str
+    provider: str | None = None
+    model: str | None = None
+    memories: list[MemoryOut]
+    latency_ms: int
+
+
+class ProviderInfo(BaseModel):
+    name: str
+    model: str
+    configured: bool
+
+
+class ProviderListResponse(BaseModel):
+    providers: list[ProviderInfo]
+    active: str | None = None
+
+
 class MemoryListResponse(BaseModel):
     memories: list[MemoryOut]
 
@@ -239,6 +266,78 @@ def get_memories(tenant_id: str = Query(DEFAULT_TENANT),
     with _engine_lock:
         rows = store.get_active(tenant_id=tenant_id, limit=200, user_id=user_id)
     return {"memories": [memory_from_row(r) for r in rows]}
+
+
+# ── assistant (LLM) endpoints — retrieval stays deterministic; the model
+# answers FROM the retrieved evidence and never invents (S-011) ──────────────
+@app.get("/assist/providers", response_model=ProviderListResponse)
+def assist_providers() -> dict[str, Any]:
+    configured = available_providers()
+    active = get_provider()
+    return {
+        "providers": [
+            {"name": p.name, "model": p.model,
+             "configured": p.name in {c["name"] for c in configured}}
+            for p in register_all().values()
+        ],
+        "active": active.name if active else None,
+    }
+
+
+@app.post("/assist", response_model=AssistResponse)
+def assist(body: AssistRequest,
+           tenant_id: str = Query(DEFAULT_TENANT),
+           user_id: str = Query(DEFAULT_USER),
+           limit: int = Query(5, ge=1, le=10)) -> dict[str, Any]:
+    _, retriever = _get_engine()
+    provider = get_provider(body.provider)
+    if provider is None:
+        raise HTTPException(status_code=503, detail="no assistant provider configured")
+
+    t0 = time.perf_counter()
+    with _engine_lock:
+        try:
+            hits = retriever.search(
+                tenant_id=tenant_id, query=body.query, limit=limit,
+                user_id=user_id,
+            )
+        except NoRelevantMemory:
+            hits = []
+    ret_ms = int((time.perf_counter() - t0) * 1000)
+
+    memories = [memory_to_contract(h) for h in hits]
+    evidence = [
+        {"memory": h["text"], "provenance": h.get("provenance"),
+         "confidence": float(h.get("confidence") or 0.0),
+         "cosine_sim": round(float(h.get("cosine_sim") or 0.0), 3),
+         "bm25": round(float(h.get("bm25") or 0.0), 3)}
+        for h in hits
+    ]
+    system = (
+        "You are MemoryOS, a memory-assisted assistant. "
+        "Answer the user's question using ONLY the retrieved memory evidence "
+        "below. Quote the evidence when relevant. If no memory is relevant or "
+        "the evidence has nothing useful, say so plainly - never invent, "
+        "guess, or recall anything not in the evidence."
+    )
+    prompt = (
+        f"Retrieved memory evidence:\n"
+        + (json.dumps(evidence, indent=2) if evidence else "  (none - no relevant memory)")
+        + "\n\nUser's question: " + body.query
+    )
+    try:
+        answer = provider.generate(system=system, user=prompt, memories=hits)
+    except Exception as exc:  # noqa: BLE001 — provider errors are user-facing
+        raise HTTPException(status_code=502, detail=f"assistant error: {exc!r}")
+
+    return {
+        "query": body.query,
+        "answer": answer,
+        "provider": provider.name,
+        "model": provider.model,
+        "memories": memories,
+        "latency_ms": ret_ms + int((time.perf_counter() - t0) * 1000),
+    }
 
 
 @app.get("/audit", response_model=AuditResponse)
