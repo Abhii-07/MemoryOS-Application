@@ -19,10 +19,11 @@ Premium Next.js marketing site (deterministic demo engine) + future live Playgro
 - Update `docs/SESSION_STATE.md` + `docs/STATUS.md` at the end of every session.
 - The public MemoryOS repo (`D:\Abhii\Projects\MemoryOS`) is untouched.
 
-## Current state (2026-08-12)
+## Current state (2026-08-13)
 - Phases 0–4 complete: scaffold, tokens, engine interface + demo engine, nav, hero (MemoryCore canvas + coffee→tea narrative), 7-act product story (memory ledger, decision stream, developer, trust, use cases, final CTA), back-to-top, claims-honesty pass.
 - Phase 4 (a11y + performance) verified: Lighthouse mobile 96/100/100/100 · desktop 100/100/100/100, CLS 0, no long tasks, no scroll jank; §58 checklist all green.
-- Next: Phase 5 (FastAPI + `ApiMemoryEngine` + live Playground).
+- Phase 5 (live engine) done except assistant-mode providers: PostgreSQL 0xC0000142 resolved (console-attached postmaster, `:5433`, pgvector 0.8.6), engine verified (smoke + 97/97 tests), FastAPI `server/` (`POST /ingest` · `/ask` · `/memory` · `/audit` · `/healthz`, `run.ps1` lifecycle), `ApiMemoryEngine` implemented, `/playground` live with A/B theater (naive baseline vs real engine).
+- To run locally: start PG (console-attached postmaster on :5433) → `server/run.ps1 -Start` → `site`: `npm run dev`. Playground is always the real engine; landing page stays `DemoMemoryEngine`.
 
 ## Where the project is heading
-- Phase 5 — FastAPI service, `ApiMemoryEngine`, live Playground + A/B theater + assistant-mode providers.
+- Phase 5 remainder — assistant-mode providers (Ollama · OpenAI · Anthropic · OpenRouter; keys via local `.env` only), then any deployment decision (nothing pushed without user approval).

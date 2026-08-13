@@ -3,9 +3,9 @@
 > Canonical, machine-readable/human-readable state of this project. **The repository is the source of truth, not chat context.** If any file contradicts this one, SESSION_STATE.md wins (and the contradiction must be fixed).
 
 ## Last Updated
-- Date/time: 2026-08-12 (Phase 4 complete — a11y + performance verified)
-- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = Phase 4 commit
-- Phase: **Phase 4 complete — Phase 5 (live engine) next** (see `STATUS.md`)
+- Date/time: 2026-08-13 (Phase 5 live engine — FastAPI + ApiMemoryEngine + live Playground done; assistant-mode providers deferred)
+- Git: local-only repo (`D:\Abhii\Projects\MemoryOS-Showcase`), branch `main`, **no remote ever**, HEAD = Phase 4 commit (Phase 5 work staged for one commit)
+- Phase: **Phase 5 in progress — live engine working; providers deferred** (see `STATUS.md`)
 
 ## Project
 - Project name: **MemoryOS Showcase** (sibling of the MemoryOS engine repo, `D:\Abhii\Projects\MemoryOS`)
@@ -25,7 +25,7 @@
 | 3d | Back to top button (fixed bottom-right, site-wide) | [x] done |
 | 3e | Ledger blank-gap fix (always-visible continuous scroll loop) | [x] done |
 | 4 | Polish, a11y, performance (all §58 items verified) | [x] done |
-| 5 | FastAPI + ApiMemoryEngine + live Playground (deferred) | pending |
+| 5 | FastAPI + ApiMemoryEngine + live Playground | [~] in progress — engine+playground done (12/13 items in STATUS.md), assistant-mode providers deferred |
 
 ## Decisions (current rulings, full log in `docs/DECISIONS.md`)
 - S-001 Demo-data-first: landing uses deterministic `DemoMemoryEngine`; no live backend on the marketing site.
@@ -56,8 +56,15 @@
 - Ledger blank-gap fix: all rows present in server HTML (no `opacity`/`translateY(10px)` reveal styles, no `step`/`stepShown` machinery) — the stage renders content from first paint and never blanks; continuous scroll with scroll-back loop.
 - Lighthouse (Phase 4): mobile (simulated 4G + CPU throttle) perf 96 · a11y 100 · best-practices 100 · SEO 100 — CLS 0, TBT 13 ms, LCP ~2.8 s simulated (artifact); desktop (real network) 100 · 100 · 100 · 100 — LCP 94 ms. Load long-tasks: 0. Realistic scripted scroll: 0 frames > 24 ms (212 frames). Tab-order probe: logo → nav toggle → CTAs → ledger rows, all named.
 - Spec §58 acceptance checklist — ALL items verified (scroll jank: none; hero responsive during animation: TBT ≤ 20 ms; offscreen/hidden-tab pauses: IO + visibilitychange in MemoryCore/HeroNarrative/ledger; reduced motion: static fallbacks verified; keyboard nav: focus-visible + Esc + focus return; CLS: 0; no React render loops: refs + direct DOM writes; bundle: 230 KB gzip initial, motion + lucide only; no full-screen WebGL: Canvas 2D only).
-- Spec §58 acceptance checklist — pending (Phase 4).
+- Phase 5 engine verify (2026-08-13): engine 97/97 tests green against real Postgres 17.10 (:5433, pgvector 0.8.6); smoke: admit ADD → UPDATE supersession, hybrid retrieval returns exact hits, EC-13 floor rejects paraphrases as designed. FastAPI endpoints all green (`/healthz` · `/ingest` ADD/UPDATE · `/ask` · `/memory` · `/audit` CREATED→SUPERSEDED→ACTIVE); CORS preflight OK from localhost:3000; `npm run build` green; `/playground` serves 200 with LivePlayground.
+
+## Phase 5 — live stack (2026-08-13)
+- **Postgres**: portable `C:\pg17\` on `:5433`, console-attached postmaster (blocker + fix: `docs/PHASE5-POSTGRES-ISSUE.md`, status RESOLVED). DB `memoryos`, role `memoryos` (trust), pgvector 0.8.6.
+- **Server**: `server/` FastAPI (`app.py` + `mapping.py` + `run.ps1` + `requirements.txt`). Lifecycle: `server/run.ps1 -Restart/-Status/-Logs` (readiness = `/healthz` poll; lazy embedder so boot is ~1 s; no guess-timing).
+- **Client**: `site/lib/engine/ApiMemoryEngine.ts` (same `MemoryEngine` contract; base URL `NEXT_PUBLIC_MEMORY_API_URL`, default `http://127.0.0.1:8000`). `site/components/playground/LivePlayground.tsx` — 3 panels (Message event stream · Ask with A/B naive-vs-MemoryOS theater · Memories + per-memory audit trail). Playground hard-wires `ApiMemoryEngine`; landing page stays `DemoMemoryEngine` (S-001 intact — `ENGINE_MODE` env only affects non-playground).
+- **Caveat**: console-attached Postgres exits with the owning session; durable options (service / WSL2) documented in the issue doc.
+- **Footgun learned**: stray `bisect.py` in `Temp\opencode` shadowed stdlib `bisect`, breaking psycopg's compiled `pq` import from scripts run there — probes now live in `Temp\opencode\scripts\`.
 
 ## Next Actions
-1. Phase 5: FastAPI service (`POST /ingest` · `POST /ask` · `GET /memory` · `GET /audit`) reusing `memory_os` from the engine repo; implement `ApiMemoryEngine` (same contract); wire `/playground` to the real engine; A/B theater; assistant-mode providers (Ollama · OpenAI · Anthropic · OpenRouter).
+1. Assistant-mode providers (Ollama · OpenAI · Anthropic · OpenRouter) — keys via local `.env` only; deferred.
 2. If deploying: static export/CDN (prefers Vercel — but engine repo stays local; nothing pushed without user approval).

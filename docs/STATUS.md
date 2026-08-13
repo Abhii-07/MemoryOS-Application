@@ -2,7 +2,7 @@
 
 > Phase-by-phase build checklist for the MemoryOS Showcase. Updated at the end of every working session/phase. `[ ]` = pending · `[x]` = done · `[~]` = in progress.
 
-Last updated: 2026-08-12
+Last updated: 2026-08-13
 
 ## Phase 0 — Repo Setup (done)
 - [x] `git init` local-only (`main`, no remote)
@@ -52,9 +52,11 @@ Last updated: 2026-08-12
 - [x] Spec §58 acceptance checklist — all items verified (see SESSION_STATE)
 - [x] Docs updated + committed
 
-## Phase 5 — Live Engine (deferred)
-- [ ] FastAPI service (`POST /ingest` · `POST /ask` · `GET /memory` · `GET /audit`) reusing `memory_os`
-- [ ] `ApiMemoryEngine` (same `MemoryEngine` contract)
-- [ ] `/playground` live: real input → real engine
-- [ ] A/B theater (naive baseline vs MemoryOS)
-- [ ] Assistant-mode providers (Ollama · OpenAI · Anthropic · OpenRouter)
+## Phase 5 — Live Engine (done, except assistant-mode providers)
+- [x] PostgreSQL blocker resolved — portable PG 17.10 + pgvector 0.8.6 running console-attached on `:5433` (root cause + fix: `docs/PHASE5-POSTGRES-ISSUE.md`)
+- [x] Engine verified against real DB: smoke (ADD/UPDATE supersession, hybrid retrieval) + full 97-test suite green
+- [x] FastAPI service (`POST /ingest` · `POST /ask` · `GET /memory` · `GET /audit` · `GET /healthz`) reusing `memory_os` — `server/app.py` + `server/mapping.py` + `server/run.ps1` (readiness-polled lifecycle, no guess-timing)
+- [x] `ApiMemoryEngine` (same `MemoryEngine` contract) — `site/lib/engine/ApiMemoryEngine.ts`
+- [x] `/playground` live: real input → real engine (3 panels: Message · Ask · Memories+audit)
+- [x] A/B theater (naive no-memory baseline vs MemoryOS) in the Ask panel
+- [ ] Assistant-mode providers (Ollama · OpenAI · Anthropic · OpenRouter) — deferred, keys via `.env` only
