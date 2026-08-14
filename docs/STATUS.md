@@ -77,6 +77,6 @@ Last updated: 2026-08-14
 - [x] Verified live (probe): "I've started drinking chai every morning" -> candidates ["drinks chai every morning"] -> remember -> "what do I drink now?" -> rewritten: True, chai retrieved, grounded answer
 - [x] run.ps1 lifecycle hardening: per-run logs (uvicorn.<stamp>.log/.err.log - no shared-file lock), visible phases, /healthz poll, pg reachability check; ~3 s restart
 
-## Phase 7 - GitHub (in progress)
-- [ ] Push to Abhii-07/memoryos-portal (public) - S-016 approval recorded, gh auth pending
-- [ ] Post-push verification (clone check / README renders / secrets sweep)
+## Phase 7 - GitHub (done)
+- [x] Pushed to https://github.com/Abhii-07/MemoryOS-Application (public, empty repo created by user; remote `origin` added, `main` pushed + tracking set) - S-016
+- [x] Post-push verification: fresh depth-1 clone → `main` = d41c3df, 66 files, secrets sweep clean (no `.env`/logs/caches tracked)

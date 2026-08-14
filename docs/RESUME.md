@@ -13,7 +13,7 @@ Premium Next.js marketing site (deterministic demo engine) + future live Playgro
 5. Landing page must NEVER depend on a backend — `DemoMemoryEngine` only.
 
 ## Ground rules (non-negotiable)
-- Git stays local-only until user-approved; **never push anywhere without explicit user approval.** (S-016 approval recorded 2026-08-14: push to `Abhii-07/memoryos-portal`, public — gh auth still pending.)
+- Git stays local-only until user-approved; **never push anywhere without explicit user approval.** (S-016 approval 2026-08-14: pushed to `Abhii-07/MemoryOS-Application`, public.)
 - No WebGL, Three.js, GSAP, or heavy animation deps.
 - Real metrics only (11 ms · 0% · 97 tests, from engine `acceptance.json`).
 - Update `docs/SESSION_STATE.md` + `docs/STATUS.md` at the end of every session.
@@ -28,5 +28,5 @@ Premium Next.js marketing site (deterministic demo engine) + future live Playgro
 
 ## Where the project is heading
 - Deployment decision pending — cloud providers need keys in `server/.env` (Ollama local only); DB/API/site hosts up to user.
-- Push to GitHub pending user `gh auth login` (S-016): `gh repo create Abhii-07/memoryos-portal --public --source D:\Abhii\Projects\MemoryOS-Showcase --push`.
+- Pushed (S-016, 2026-08-14): https://github.com/Abhii-07/MemoryOS-Application (public) — `main` verified via fresh clone; repo-root README optional follow-up.
 - Known local quirk: after `run.ps1 -Start/-Restart`, agent shells may appear "stuck until timeout" — the spawned server is detached and healthy; the wait is a Windows handle-inheritance artifact of the invoking shell, not a server fault.
