@@ -5,6 +5,7 @@ import type {
   MemoryResponse,
   AuditEvent,
   AssistResponse,
+  ChatTurn,
   MemoryEngine,
 } from "./MemoryEngine";
 
@@ -150,6 +151,45 @@ export class ApiMemoryEngine implements MemoryEngine {
       active: string | null;
     }>("/assist/providers");
     return res.providers;
+  }
+
+  private _chatSession: string | null = null;
+
+  /** Chat loop — server keeps the session; facts are confirmed client-side
+   *  via ingest(), never auto-written (S-014). */
+  async chat(text: string): Promise<ChatTurn> {
+    const res = await request<{
+      session_id: string;
+      answer: string;
+      candidates: string[];
+      rewrite: string;
+      rewritten: boolean;
+      provider: string | null;
+      model: string | null;
+      memories: ServerMemory[];
+      latency_ms: number;
+    }>("/chat", {
+      method: "POST",
+      body: JSON.stringify(
+        this._chatSession ? { session_id: this._chatSession, text } : { text },
+      ),
+    });
+    this._chatSession = res.session_id;
+    return {
+      sessionId: res.session_id,
+      answer: res.answer,
+      candidates: res.candidates,
+      rewrite: res.rewrite,
+      rewritten: res.rewritten,
+      provider: res.provider,
+      model: res.model,
+      memories: res.memories.map((m) => this.toMemory(m)),
+      latencyMs: res.latency_ms,
+    };
+  }
+
+  resetChat(): void {
+    this._chatSession = null;
   }
 
   private toMemory(m: ServerMemory): Memory {

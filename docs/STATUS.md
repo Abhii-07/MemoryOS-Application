@@ -2,7 +2,7 @@
 
 > Phase-by-phase build checklist for the MemoryOS Showcase. Updated at the end of every working session/phase. `[ ]` = pending · `[x]` = done · `[~]` = in progress.
 
-Last updated: 2026-08-13
+Last updated: 2026-08-14
 
 ## Phase 0 — Repo Setup (done)
 - [x] `git init` local-only (`main`, no remote)
@@ -65,3 +65,18 @@ Last updated: 2026-08-13
 - [x] ApiMemoryEngine.assist() + listProviders(); Assist panel (4th tab) in LivePlayground - provider select, evidence list, latency, no-memory honesty
 - [x] .env.example committed (real .env gitignored - zero secrets on machine)
 - [x] Verified live: ollama pull llama3.2:latest (2.0 GB); grounded query cites memory evidence; zero-hit query answers honestly
+
+## Phase 6 - Chat Loop (done)
+- [x] POST /chat: stateful conversation (in-process sessions, 64 max / 12 turns / last 6 in context) - server/chat.py + wiring in app.py
+- [x] Context-aware LLM query rewrite (S-015): short keyword phrases, double-draw (2 attempts unioned, cap 3), hard fallback to raw query; lenient JSON parse (quoted-token regex fallback for malformed model output)
+- [x] Best-of retrieval: raw query + rewritten variants + prior user texts from the session (single-keyword variants score under the 0.5 floor; user texts are near-verbatim and clear it) - verified live
+- [x] Grounded answer: never-invent system prompt; assistant's own previous reply excluded from the model transcript (model was imitating its own prior "no evidence" line while evidence existed)
+- [x] Confirm-to-remember (S-014): second LLM call extracts candidate facts (I/my/we only; questions return []); UI "remember?" chips save via existing POST /ingest - ChatPanel.tsx replaces the Assist panel (LivePlayground: Message | Ask | Chat | Memories)
+- [x] ApiMemoryEngine.chat() + resetChat(); ChatTurn interface
+- [x] 12 unit tests green (server/tests/test_chat.py) - rewrite parse/fallback/dedupe/best-of/no-hit, extraction, session roundtrip, history pairs
+- [x] Verified live (probe): "I've started drinking chai every morning" -> candidates ["drinks chai every morning"] -> remember -> "what do I drink now?" -> rewritten: True, chai retrieved, grounded answer
+- [x] run.ps1 lifecycle hardening: per-run logs (uvicorn.<stamp>.log/.err.log - no shared-file lock), visible phases, /healthz poll, pg reachability check; ~3 s restart
+
+## Phase 7 - GitHub (in progress)
+- [ ] Push to Abhii-07/memoryos-portal (public) - S-016 approval recorded, gh auth pending
+- [ ] Post-push verification (clone check / README renders / secrets sweep)

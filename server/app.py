@@ -25,6 +25,7 @@ import json
 import os
 import threading
 import time
+import uuid
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
@@ -34,6 +35,8 @@ from pydantic import BaseModel, Field
 from memory_os.admission.admitter import Admitter, AdmissionResult
 from memory_os.db.store import MemoryStore
 from memory_os.retrieval.hybrid import HybridRetriever, NoRelevantMemory
+
+import chat as chat_loop
 
 from mapping import (
     audit_trail,
@@ -181,6 +184,23 @@ class ProviderInfo(BaseModel):
 class ProviderListResponse(BaseModel):
     providers: list[ProviderInfo]
     active: str | None = None
+
+
+class ChatRequest(BaseModel):
+    session_id: str | None = None
+    text: str = Field(min_length=1, max_length=2000)
+
+
+class ChatResponse(BaseModel):
+    session_id: str
+    answer: str
+    candidates: list[str] = []
+    memories: list[MemoryOut]
+    rewrite: str
+    rewritten: bool
+    provider: str | None = None
+    model: str | None = None
+    latency_ms: int
 
 
 class MemoryListResponse(BaseModel):
@@ -348,6 +368,30 @@ def audit(memory_id: str,
     if not events:
         raise HTTPException(status_code=404, detail="memory not found")
     return {"events": events}
+
+
+# ── chat loop (S-014/S-015): grounded turn + candidate facts + query rewrite ─
+@app.post("/chat", response_model=ChatResponse)
+def chat(body: ChatRequest,
+         tenant_id: str = Query(DEFAULT_TENANT),
+         user_id: str = Query(DEFAULT_USER)) -> dict[str, Any]:
+    admitter, retriever = _get_engine()
+    provider = get_provider()
+    if provider is None:
+        raise HTTPException(status_code=503, detail="no assistant provider configured")
+    session_id = body.session_id or uuid.uuid4().hex
+    try:
+        with _engine_lock:
+            result = chat_loop.handle_turn(
+                admitter=admitter, retriever=retriever, provider=provider,
+                session_id=session_id, text=body.text,
+                tenant_id=tenant_id, user_id=user_id,
+            )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    result["session_id"] = session_id
+    result["memories"] = [memory_to_contract(h) for h in result["memories"]]
+    return result
 
 
 def _timestamps_by_id(hits: list[dict[str, Any]]) -> dict[str, tuple[Any, Any]]:

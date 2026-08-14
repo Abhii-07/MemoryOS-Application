@@ -6,24 +6,25 @@ import type {
   MemoryEvent,
   MemoryResponse,
   AuditEvent,
-  AssistResponse,
 } from "@/lib/engine/MemoryEngine";
 import { ApiMemoryEngine } from "@/lib/engine/ApiMemoryEngine";
 import { ENGINE_MODE } from "@/lib/engine/config";
+import { ChatPanel } from "./ChatPanel";
 
 /**
  * LivePlayground — the REAL engine (Phase 5).
  *
- * Three panels, all driven through the MemoryEngine contract:
+ * Four panels, all driven through the MemoryEngine contract:
  *   - Message  : ingest a turn -> live admission event stream
  *   - Ask      : hybrid retrieval -> memories + reasons + real latency
+ *   - Chat     : grounded LLM loop (query rewrite, confirm-to-remember)
  *   - Memories : active store -> per-memory audit trail
  *
  * Runs on ApiMemoryEngine when NEXT_PUBLIC_MEMORY_ENGINE=api and the FastAPI
  * service is up (server/run.ps1 -Start); otherwise honest "api offline".
  */
 
-type Panel = "message" | "ask" | "assist" | "memories";
+type Panel = "message" | "ask" | "chat" | "memories";
 
 const SUGGESTED_MESSAGES = [
   "I prefer coffee over tea.",
@@ -80,14 +81,6 @@ export function LivePlayground() {
   const [audit, setAudit] = useState<AuditEvent[] | null>(null);
   const [auditFor, setAuditFor] = useState<string | null>(null);
 
-  const [assistQuery, setAssistQuery] = useState("");
-  const [assistRes, setAssistRes] = useState<AssistResponse | null>(null);
-  const [assisting, setAssisting] = useState(false);
-  const [providers, setProviders] = useState<
-    { name: string; model: string; configured: boolean }[]
-  >([]);
-  const [provider, setProvider] = useState("");
-
   const [error, setError] = useState<string | null>(null);
   const eventBox = useRef<HTMLDivElement>(null);
 
@@ -118,19 +111,6 @@ export function LivePlayground() {
         .catch((e: Error) => setError(e.message));
     }
   }, [panel, connected, memories.length, engine]);
-
-  useEffect(() => {
-    if (connected && providers.length === 0) {
-      engine
-        .listProviders()
-        .then((p) => {
-          setProviders(p);
-          const configured = p.filter((x) => x.configured);
-          if (configured.length) setProvider(configured[0].name);
-        })
-        .catch((e: Error) => setError(e.message));
-    }
-  }, [connected, providers.length, engine]);
 
   async function handleIngest() {
     if (!message.trim() || ingesting) return;
@@ -173,19 +153,6 @@ export function LivePlayground() {
       setAudit(await engine.audit(memoryId));
     } catch (e) {
       setError(e instanceof Error ? e.message : "audit failed");
-    }
-  }
-
-  async function handleAssist() {
-    if (!assistQuery.trim() || assisting) return;
-    setAssisting(true);
-    setError(null);
-    try {
-      setAssistRes(await engine.assist(assistQuery.trim(), provider || undefined));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "assist failed");
-    } finally {
-      setAssisting(false);
     }
   }
 
@@ -233,7 +200,7 @@ export function LivePlayground() {
           [
             ["message", "Message"],
             ["ask", "Ask"],
-            ["assist", "Assist"],
+            ["chat", "Chat"],
             ["memories", "Memories"],
           ] as [Panel, string][]
         ).map(([id, label]) => (
@@ -526,116 +493,8 @@ export function LivePlayground() {
         </section>
       )}
 
-      {/* panel: assist */}
-      {panel === "assist" && (
-        <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_380px]">
-          <div className="card-surface flex flex-col p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-faint">
-                Assist — memory-grounded LLM answer
-              </h2>
-              <select
-                value={provider}
-                onChange={(e) => setProvider(e.target.value)}
-                aria-label="Assistant provider"
-                className="rounded-md border border-[rgba(255,255,255,0.12)] bg-raised px-2.5 py-1.5 font-mono text-[11px] text-text outline-none focus:border-[rgba(124,92,255,0.5)]"
-              >
-                <option value="">auto</option>
-                {providers
-                  .filter((p) => p.configured)
-                  .map((p) => (
-                    <option key={p.name} value={p.name}>
-                      {p.name} · {p.model}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div className="mt-4 flex gap-2">
-              <input
-                value={assistQuery}
-                onChange={(e) => setAssistQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAssist()}
-                disabled={assisting || connected === false}
-                placeholder="e.g. remind me — what do I drink?"
-                aria-label="Ask the assistant"
-                className="min-w-0 flex-1 rounded-md border border-[rgba(255,255,255,0.12)] bg-raised px-3.5 py-2.5 text-[13.5px] text-text outline-none placeholder:text-faint focus:border-[rgba(124,92,255,0.5)] disabled:opacity-50"
-              />
-              <button
-                onClick={handleAssist}
-                disabled={assisting || connected === false || !assistQuery.trim()}
-                className="btn-primary !px-5 !py-2.5 text-[13px] disabled:opacity-50"
-              >
-                {assisting ? "…" : "Assist"}
-              </button>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3" aria-live="polite">
-              {assistRes === null && (
-                <p className="pt-4 text-center font-mono text-[12px] text-faint">
-                  retrieval feeds the model — answer comes from evidence only
-                </p>
-              )}
-              {assistRes && (
-                <div className="rounded-lg border border-[rgba(124,92,255,0.3)] bg-[rgba(124,92,255,0.06)] p-4 animate-[panel-in_0.25s_ease]">
-                  <p className="text-[14px] leading-relaxed text-text">
-                    {assistRes.answer}
-                  </p>
-                  <p className="mt-3 font-mono text-[10.5px] text-faint">
-                    assisted by{" "}
-                    <span className="text-secondary">
-                      {assistRes.provider}/{assistRes.model}
-                    </span>{" "}
-                    · engine {assistRes.latencyMs} ms{" "}
-                    {assistRes.memories.length
-                      ? `· ${assistRes.memories.length} memory(ies) grounded`
-                      : "· no relevant memory — answered honestly"}
-                  </p>
-                  {assistRes.memories.length > 0 && (
-                    <ul className="mt-3 flex flex-col gap-1.5 border-t border-[rgba(255,255,255,0.08)] pt-3">
-                      {assistRes.memories.map((m) => (
-                        <li key={m.id} className="font-mono text-[11px] text-muted">
-                          · {m.value}{" "}
-                          <span className="text-faint">
-                            ({m.provenance.slice(0, 42)}
-                            {m.provenance.length > 42 ? "…" : ""})
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <aside className="card-surface h-fit p-5">
-            <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-faint">
-              How grounding works
-            </h2>
-            <ul className="mt-4 flex flex-col gap-3 text-[13px] leading-relaxed text-muted">
-              <li>
-                <span className="text-secondary">1 · Retrieve</span> — the
-                deterministic hybrid retriever fetches evidence, floor-filtered.
-              </li>
-              <li>
-                <span className="text-secondary">2 · Ground</span> — evidence
-                block is injected into the model prompt verbatim: provenance,
-                confidence, scores.
-              </li>
-              <li>
-                <span className="text-secondary">3 · Constrain</span> — model
-                instructed to answer from evidence only, never invent. Zero
-                hits = honest "no relevant memory".
-              </li>
-              <li>
-                <span className="text-secondary">4 · Local/dev</span> — Ollama
-                needs no key. Hosted: OpenRouter free models (1 key) or
-                OpenAI/Anthropic; keys live in server .env only, never client.
-              </li>
-            </ul>
-          </aside>
-        </section>
+      {panel === "chat" && (
+        <ChatPanel engine={engine} connected={connected} onError={setError} />
       )}
 
       {/* panel: memories */}

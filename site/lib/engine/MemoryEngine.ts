@@ -104,6 +104,18 @@ export interface AssistResponse {
   latencyMs: number;
 }
 
+export interface ChatTurn {
+  sessionId: string;
+  answer: string;
+  candidates: string[];
+  rewrite: string;
+  rewritten: boolean;
+  memories: Memory[];
+  provider: string | null;
+  model: string | null;
+  latencyMs: number;
+}
+
 export interface MemoryEngine {
   ingest(input: string): Promise<MemoryEvent[]>;
   ask(query: string): Promise<MemoryResponse>;

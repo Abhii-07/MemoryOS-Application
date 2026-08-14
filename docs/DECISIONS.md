@@ -57,3 +57,18 @@
 **Date:** 2026-08-13
 **Ruling:** POST /assist runs an LLM grounded on retrieved memory evidence. Provider order: Ollama (local, key-less) for development; OpenRouter (one key, free models) / OpenAI / Anthropic for hosted deployments. Keys live only in server/.env (never client, never committed; .env.example is the committed template). Registry auto-picks the first configured provider; env MEMORYOS_ASSIST_PROVIDER forces one. is_configured must be honest — cloud = key present, Ollama = endpoint up AND model present in /api/tags.
 **Rationale:** A hosted site cannot reach a local Ollama, so deployment needs a cloud provider; free tier keeps it costless. Real gate checks prevent a 502-class lie where the provider is "configured" but unusable (empty model list was exactly that).
+
+## S-014 — Chat loop with confirm-to-remember
+**Date:** 2026-08-14
+**Ruling:** POST /chat runs a stateful conversation loop: (1) LLM rewrites the query with conversation context (see S-015); (2) hybrid retrieval; (3) LLM answer grounded strictly on retrieved evidence — never invents, says plainly when nothing relevant; (4) a SECOND LLM call extracts candidate personal facts from the user's message (I/my/we statements only; questions/requests return []); the UI shows them as "remember?" chips and saving calls the existing POST /ingest. The assistant's own previous reply is excluded from the model transcript so the model never imitates a prior "no evidence" line while evidence exists.
+**Rationale:** Never auto-write to memory without the user confirming (candidate facts are guesses about what matters). Two-stage extraction is format-independent — a question answered from memory must not pollute the fact stream. Verified live: "I've started drinking chai every morning" -> candidate ["drinks chai every morning"]; next turn "what do I drink now?" -> rewritten, chai retrieved, grounded answer.
+
+## S-015 — Context-aware query rewrite, best-of retrieval
+**Date:** 2026-08-14
+**Ruling:** Before retrieval, an LLM rewrites the query into two keyword-rich variants (short phrases, never single words — single tokens score under the 0.5 relevance floor). Retrieval is best-of: raw query + variants + prior user texts from the session; the highest-scoring query wins. Double-draw: two stochastic rewrite attempts are unioned (deduped, capped at 3) so one bad draw cannot kill the rewrite.
+**Rationale:** Natural-language questions ("what do I drink now?") share few lexical tokens with stored facts ("drinks chai every morning"); the floor rejects both raw query and single-keyword variants. Prior user texts are near-verbatim to stored facts and reliably clear the floor — verified live (chai turn). Single-word variants measured at cosine ~0.44 vs floor 0.5.
+
+## S-016 — Public GitHub push (approval supersedes S-005)
+**Date:** 2026-08-14
+**Ruling:** On the user's explicit approval ("push all the code to github if working fine"), the Showcase repository is pushed to GitHub as Abhii-07/memoryos-portal (public). The engine repo (Abhii-07/MemoryOS) is already public and untouched. Secrets stay out: .env gitignored, .env.example committed, logs/caches ignored. S-005's "no pushes without approval" remains in force for any future repo until revoked.
+**Rationale:** The project reached a verified, documented state (chat loop + assistant providers + full engine test suite green); user wants it public. Public repo is the requested visibility level; no deploy target is configured yet.
