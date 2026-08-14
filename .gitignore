@@ -30,3 +30,6 @@ __pycache__/
 
 # internal spec - local only
 MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md
+
+# moodboards - local reference material
+moodboards/
