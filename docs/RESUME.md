@@ -6,7 +6,7 @@
 Premium Next.js marketing site (deterministic demo engine) + future live Playground for the MemoryOS memory engine, per the 70-section spec in the repo root.
 
 ## Pick-up instructions (fresh session)
-1. Read `MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md` — it is the contract (design + performance, §1–70).
+1. Read `MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md` (repo root, local-only — gitignored, not pushed; it is the contract: design + performance, §1–70).
 2. Read `docs/SESSION_STATE.md` → `docs/STATUS.md` (where we are) → `docs/DECISIONS.md` (rulings).
 3. Read `docs/PROJECT_MEMORY.md` for architecture and the `MemoryEngine` contract.
 4. Work in `site/` (Next.js). Run: `npm run dev` / `npm run build`.

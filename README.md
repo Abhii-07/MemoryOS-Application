@@ -70,4 +70,3 @@ The engine suite (97 tests) runs from its own repository.
 - `docs/DECISIONS.md` — architecture rulings (S-001 … S-016)
 - `docs/SESSION_STATE.md` — detailed state, verification notes, footguns
 - `docs/PHASE5-POSTGRES-ISSUE.md` — Windows pg_ctl crash root cause + console-attached fix
-- `MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md` — the design contract (§1–70)

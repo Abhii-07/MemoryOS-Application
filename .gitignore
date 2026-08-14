@@ -27,3 +27,6 @@ next-env.d.ts
 __pycache__/
 *.pyc
 .hf-cache/
+
+# internal spec - local only
+MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md

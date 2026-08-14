@@ -40,7 +40,7 @@
 - S-012 Phase 4 a11y + measured performance: global `:focus-visible` ring; mobile menu Esc-close + focus return + `aria-controls`; ledger inspector focus return to source row; ledger rows name themselves (no aria-label override) and the scroll area has no redundant `role="list"` (ol provides semantics); DecisionStream resolution panel wrapped in `<dl>`; `--text-faint` → `#7a7b87` for AA contrast (DELETE/DELETED state colors follow); NO `content-visibility` on ledger rows (collapses offscreen rows to 1px — overlap bug). Measured: mobile (simulated 4G+CPU) perf 96 · a11y 100 · BP 100 · SEO 100, CLS 0, TBT 13 ms; desktop (real network) 100·100·100·100, LCP 94 ms; 0 long tasks on load; realistic scroll 0 frames > 24 ms; initial JS 230 KB gzip. Simulated LCP ~2.8 s is a throttling artifact — real network 94 ms.
 
 ## Constraints (operational)
-1. Spec (`MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md`) is the design/performance contract — sections 1–70.
+1. Spec (`MEMORYOS_LIVING_MEMORY_INTERFACE_SPEC.md` — local-only, gitignored, not pushed) is the design/performance contract — sections 1–70.
 2. Stack: Next.js + TypeScript + Tailwind CSS + Motion + Lucide; Canvas 2D/SVG only where justified; **no WebGL, no Three.js, no GSAP** (spec §34–35, §59).
 3. Performance rules: transform/opacity only, rAF, DPR ≤ 2, node caps (desktop 20–40 / mobile 8–18), IntersectionObserver + tab-visibility pauses, `prefers-reduced-motion` + manual Motion toggle, blur ≤ 12px sparingly, no preloader, static-graph fallback (spec §25–33, §55–56).
 4. Accessibility: keyboard nav, focus states, semantic headings, screen-reader labels, graph has "view as list" alternative (spec §49).
