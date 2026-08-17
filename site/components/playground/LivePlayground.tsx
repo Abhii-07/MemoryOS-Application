@@ -90,8 +90,9 @@ export function LivePlayground() {
 
   /* connectivity probe: GET /healthz via the API engine base url */
   useEffect(() => {
-    const base =
-      process.env.NEXT_PUBLIC_MEMORY_API_URL ?? "http://127.0.0.1:8000";
+    const base = (
+      process.env.NEXT_PUBLIC_MEMORY_API_URL ?? "http://127.0.0.1:8000"
+    ).replace(/\/+$/, "");
     fetch(`${base}/healthz`)
       .then((r) => setConnected(r.ok))
       .catch(() => setConnected(false));
