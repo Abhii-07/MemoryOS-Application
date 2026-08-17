@@ -26,13 +26,15 @@ import os
 import threading
 import time
 import uuid
+from datetime import datetime
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from memory_os.admission.admitter import Admitter, AdmissionResult
+from memory_os.context.builder import ContextResult, build_context
 from memory_os.db.store import MemoryStore
 from memory_os.retrieval.hybrid import HybridRetriever, NoRelevantMemory
 
@@ -52,6 +54,7 @@ DEFAULT_DSN = os.environ.get(
 )
 DEFAULT_TENANT = "playground"
 DEFAULT_USER = "demo"
+PROPAGATION_SYNC_LIMIT = int(os.environ.get("MEMORYOS_PROPAGATION_SYNC_LIMIT", "20"))
 
 # store only at import — no model load, no blocking. Engine objects are built
 # on first use (embedder weights load then, once; transformers caches them).
@@ -217,6 +220,58 @@ class AuditOut(BaseModel):
 
 class AuditResponse(BaseModel):
     events: list[AuditOut]
+
+
+# ── MemoryOS contract endpoints (design/api_contracts.md) ────────────────────
+class TurnsRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=128)
+    user_id: str = Field(min_length=1, max_length=128)
+    text: str = Field(min_length=1, max_length=4000)
+    turn_type: str = Field(default="user", pattern="^(user|assistant)$")
+    timestamp: str = Field(description="ISO 8601 datetime")
+
+
+class TurnsResponse(BaseModel):
+    record_id: str | None = None
+    admission_op: str
+    provenance: str | None = None
+    pii_scan_result: str
+    superseded_id: str | None = None
+
+
+class QueryRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=128)
+    user_id: str = Field(min_length=1, max_length=128)
+    query_text: str = Field(min_length=1, max_length=4000)
+    token_budget: int = Field(ge=1, le=100000, default=2048)
+    zone_budgets: dict[str, int] | None = None
+
+
+class MemoryHit(BaseModel):
+    record_id: str
+    text: str
+    final_score: float
+    provenance: str
+    superseded: bool
+
+
+class DeleteComplete(BaseModel):
+    deleted_id: str
+    propagated_ids: list[str]
+    propagation_status: str = "complete"
+
+
+class DeleteInProgress(BaseModel):
+    deleted_id: str
+    propagation_status: str = "in_progress"
+    check_url: str
+
+
+class DeletionStatusResponse(BaseModel):
+    job_id: str
+    propagation_status: str
+    deleted_id: str
+    propagated_ids: list[str] = []
 
 
 # ── endpoints ────────────────────────────────────────────────────────────────
@@ -393,6 +448,146 @@ def chat(body: ChatRequest,
     result["session_id"] = session_id
     result["memories"] = [memory_to_contract(h) for h in result["memories"]]
     return result
+
+
+# ── MemoryOS contract endpoints (design/api_contracts.md, deployed surface) ─
+@app.post("/v1/memory/turns", response_model=TurnsResponse)
+def admit_turn(body: TurnsRequest) -> dict[str, Any]:
+    """Admit a conversation turn (write flow). NOOP is a valid 200, not an error."""
+    admitter, _ = _get_engine()
+    try:
+        datetime.fromisoformat(body.timestamp)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="invalid timestamp; expected ISO 8601")
+    with _engine_lock:
+        result: AdmissionResult = admitter.admit(
+            tenant_id=body.tenant_id,
+            user_id=body.user_id,
+            text=body.text,
+            turn_type=body.turn_type,
+        )
+    return {
+        "record_id": str(result.record_id) if result.record_id else None,
+        "admission_op": result.admission_op,
+        "provenance": result.provenance,
+        "pii_scan_result": result.pii_scan_result,
+        "superseded_id": str(result.superseded_id) if result.superseded_id else None,
+    }
+
+
+@app.post("/v1/memory/query")
+def query_memory(body: QueryRequest) -> dict[str, Any]:
+    """Read flow: retrieve + inject context. no_relevant_memory is a valid 200."""
+    if body.zone_budgets:
+        total_zones = sum(body.zone_budgets.values())
+        if total_zones > body.token_budget:
+            raise HTTPException(
+                status_code=400,
+                detail=f"zone budgets sum ({total_zones}) exceeds token_budget ({body.token_budget})",
+            )
+    _, retriever = _get_engine()
+    with _engine_lock:
+        try:
+            hits = retriever.search(
+                tenant_id=body.tenant_id,
+                query=body.query_text,
+                limit=5,
+                user_id=body.user_id,
+            )
+        except NoRelevantMemory:
+            hits = []
+    if not hits:
+        return {
+            "result_type": "no_relevant_memory",
+            "injected_context": None,
+            "tokens_used": 0,
+            "memories": [],
+        }
+    ctx: ContextResult = build_context(
+        memories=hits,
+        token_budget=body.token_budget,
+        zone_budgets=body.zone_budgets,
+    )
+    return {
+        "result_type": ctx.result_type,
+        "injected_context": ctx.injected_context,
+        "tokens_used": ctx.tokens_used,
+        "zones_used": ctx.zones_used,
+        "memories": [
+            {
+                "record_id": str(h["id"]),
+                "text": h["text"],
+                "final_score": round(float(h.get("effective_score") or h.get("fused_score") or 0.0), 4),
+                "provenance": h.get("provenance", "user_stated"),
+                "superseded": h.get("status") != "active",
+            }
+            for h in hits
+        ],
+    }
+
+
+@app.delete("/v1/memory/{memory_id}")
+def delete_memory(
+    memory_id: str,
+    x_tenant_id: str = Header(..., alias="X-Tenant-ID"),
+    x_user_id: str = Header(..., alias="X-User-ID"),
+) -> dict[str, Any]:
+    """Evict a memory + propagate lineage. 200 complete / 202 in-progress."""
+    try:
+        uuid_obj = uuid.UUID(memory_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="invalid UUID format")
+
+    with _engine_lock:
+        deleted = store.delete(record_id=str(uuid_obj), tenant_id=x_tenant_id)
+
+    if not deleted:
+        with store.connect() as conn:
+            row = conn.execute(
+                "SELECT id, tenant_id FROM memories WHERE id = %s",
+                (str(uuid_obj),),
+            ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="memory not found or already evicted")
+        if row["tenant_id"] != x_tenant_id:
+            raise HTTPException(status_code=403, detail="memory belongs to a different tenant")
+        raise HTTPException(status_code=404, detail="memory not found or already evicted")
+
+    with _engine_lock:
+        derived = store.get_derived(tenant_id=x_tenant_id, source_id=str(uuid_obj))
+
+    if len(derived) <= PROPAGATION_SYNC_LIMIT:
+        propagated_ids: list[str] = []
+        for d in derived:
+            with _engine_lock:
+                store.delete(record_id=str(d["id"]), tenant_id=x_tenant_id)
+            propagated_ids.append(str(d["id"]))
+        return {
+            "deleted_id": str(uuid_obj),
+            "propagated_ids": propagated_ids,
+            "propagation_status": "complete",
+        }
+
+    job_id = store.create_propagation_job(tenant_id=x_tenant_id, deleted_id=str(uuid_obj))
+    return {
+        "deleted_id": str(uuid_obj),
+        "propagation_status": "in_progress",
+        "check_url": f"/v1/memory/deletion-status/{job_id}",
+    }
+
+
+@app.get("/v1/memory/deletion-status/{job_id}", response_model=DeletionStatusResponse)
+def deletion_status(job_id: str) -> dict[str, Any]:
+    """Poll endpoint for async (202) deletion propagation."""
+    job = store.get_propagation_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return {
+        "job_id": job_id,
+        "propagation_status": job.get("status", "in_progress"),
+        "deleted_id": job.get("deleted_id", ""),
+        "propagated_ids": job.get("propagated_ids", []),
+    }
 
 
 def _timestamps_by_id(hits: list[dict[str, Any]]) -> dict[str, tuple[Any, Any]]:
