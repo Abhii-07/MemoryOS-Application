@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: memoryos
+      POSTGRES_DB: memoryos
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      MEMORYOS_DB_DSN: "postgresql://memoryos@db:5432/memoryos"
+      CORS_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
+      OPENROUTER_API_KEY: "${OPENROUTER_API_KEY:-}"
+      OPENROUTER_MODEL: "meta-llama/llama-3.3-70b-instruct:free"
+      MEMORYOS_ASSIST_PROVIDER: "openrouter"
+    depends_on:
+      - db
+
+  site:
+    build:
+      context: ./site
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_MEMORY_API_URL: "http://localhost:8000"
+      NEXT_PUBLIC_MEMORY_ENGINE: "api"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

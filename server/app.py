@@ -78,9 +78,10 @@ def _get_engine() -> tuple[Admitter, HybridRetriever]:
 
 app = FastAPI(title="MemoryOS Live Engine", version="1.0.0")
 
+_cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[o.strip() for o in _cors_origins],
     allow_methods=["*"],
     allow_headers=["*"],
 )
