@@ -25,6 +25,7 @@ import json
 import os
 import threading
 import time
+import urllib.error
 import uuid
 from datetime import datetime
 from typing import Any
@@ -403,6 +404,14 @@ def assist(body: AssistRequest,
     )
     try:
         answer = provider.generate(system=system, user=prompt, memories=hits)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 429:
+            raise HTTPException(
+                status_code=502,
+                detail="assistant is rate-limited (free-provider quota). "
+                "Retry later or add credits to the provider key.",
+            )
+        raise HTTPException(status_code=502, detail=f"assistant error: {exc!r}")
     except Exception as exc:  # noqa: BLE001 — provider errors are user-facing
         raise HTTPException(status_code=502, detail=f"assistant error: {exc!r}")
 
@@ -444,6 +453,12 @@ def chat(body: ChatRequest,
                 tenant_id=tenant_id, user_id=user_id,
             )
     except RuntimeError as exc:
+        if "HTTPError 429" in str(exc):
+            raise HTTPException(
+                status_code=502,
+                detail="assistant is rate-limited (free-provider quota). "
+                "Retry later or add credits to the provider key.",
+            ) from exc
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     result["session_id"] = session_id
     result["memories"] = [memory_to_contract(h) for h in result["memories"]]
