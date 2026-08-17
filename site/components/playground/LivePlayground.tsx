@@ -88,14 +88,52 @@ export function LivePlayground() {
      forever; getEngine()/ENGINE_MODE governs the landing page only). */
   const engine = ApiMemoryEngine.instance();
 
-  /* connectivity probe: GET /healthz via the API engine base url */
+  /* connectivity probe: GET /healthz via the API engine base url.
+     Retries every 15s (bounded, 8x) so Render free-tier spin-up (503
+     loading page during ~1min wake) self-heals; re-probes on tab focus. */
   useEffect(() => {
+    let alive = true;
+    let timer: number | undefined;
+    let tries = 0;
     const base = (
       process.env.NEXT_PUBLIC_MEMORY_API_URL ?? "http://127.0.0.1:8000"
     ).replace(/\/+$/, "");
-    fetch(`${base}/healthz`)
-      .then((r) => setConnected(r.ok))
-      .catch(() => setConnected(false));
+
+    const probe = () => {
+      fetch(`${base}/healthz`)
+        .then((r) => {
+          if (alive) setConnected(r.ok);
+        })
+        .catch(() => {
+          if (alive) setConnected(false);
+        });
+    };
+
+    const schedule = () => {
+      if (!alive || tries >= 8) return;
+      tries += 1;
+      timer = window.setTimeout(() => {
+        probe();
+        schedule();
+      }, 15000);
+    };
+
+    probe();
+    schedule();
+
+    const onVis = () => {
+      if (document.visibilityState === "visible") {
+        tries = 0;
+        probe();
+        schedule();
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      alive = false;
+      if (timer !== undefined) clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, []);
 
   useEffect(() => {
