@@ -1,14 +1,22 @@
 """OpenRouter — prod default. One key, free-tier models available, model
-swapped via env without code changes."""
+swapped via env without code changes.
+
+Free-tier roster rotates on OpenRouter's discretion (delisted models 404
+with "No endpoints found"). If the configured model 404s, we fall back to
+the `openrouter/free` auto-router so the app self-heals without a deploy."""
 
 from __future__ import annotations
 
+import json
 import os
+import urllib.error
+import urllib.request
 from typing import Any
 
 from .base import Provider
 
-DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct:free"
+DEFAULT_MODEL = "google/gemma-4-31b-it:free"
+FALLBACK_MODEL = "openrouter/free"
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 
 
@@ -24,10 +32,16 @@ class OpenRouterProvider(Provider):
 
     def generate(self, *, system: str, user: str,
                  memories: list[dict[str, Any]], timeout: float = 60.0) -> str:
-        import urllib.request
+        try:
+            return self._call(self.model, system, user, timeout)
+        except urllib.error.HTTPError as e:
+            if e.code == 404 and self.model != FALLBACK_MODEL:
+                return self._call(FALLBACK_MODEL, system, user, timeout)
+            raise
 
+    def _call(self, model: str, system: str, user: str, timeout: float) -> str:
         payload = {
-            "model": self.model,
+            "model": model,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
@@ -36,12 +50,12 @@ class OpenRouterProvider(Provider):
         }
         req = urllib.request.Request(
             ENDPOINT,
-            data=__import__("json").dumps(payload).encode(),
+            data=json.dumps(payload).encode(),
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.api_key}",
             },
         )
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            body = __import__("json").loads(r.read().decode())
+            body = json.loads(r.read().decode())
         return body["choices"][0]["message"]["content"].strip()
